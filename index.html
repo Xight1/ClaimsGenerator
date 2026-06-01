@@ -4,118 +4,193 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Claim Generator</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
-
 </head>
 <body>
-  <div class="container">
-    <header class="app-header">
-      <h1>Claim Generator</h1>
-      <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 11</span>
-    </header>
-
-    <main class="workspace" id="claimWorkspace">
-      <section class="form-panel">
-        <!-- Sender + Claim Type -->
-        <div class="row-2">
-          <div class="section" id="senderSection">
-            <label for="senderName">Your Name <span style="color:var(--red)">*</span></label>
-            <input type="text" id="senderName" placeholder="e.g. Kevin" value="Kevin" />
-            <div class="error-msg" id="err-senderName">Required</div>
-          </div>
-          <div class="section">
-            <label for="claimType">Claim Type</label>
-            <select id="claimType" onchange="handleClaimTypeChange()">
-              <option value="gas">Gas Claim</option>
-              <option value="streetlight">Streetlight Claim</option>
-              <option value="escalation">Escalation of Claim</option>
-              <option value="payment">Payment Information</option>
-              <option value="followup">Follow Up</option>
-              <option value="insurance">Insurance Adjuster</option>
-              <option value="settlement">Settlement Calculator</option>
-            </select>
-          </div>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">CG</div>
+        <div>
+          <h1>Claims Generator</h1>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 13</span>
         </div>
-
-        <hr class="divider" />
-
-        <form id="formContainer" novalidate></form>
-
-        <div id="validationBanner"></div>
-
-        <div class="btn-row">
-          <button type="button" class="btn-primary" onclick="generateEmail()">Generate Email</button>
-          <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
-        </div>
-      </section>
-
-      <section class="preview-panel">
-        <div class="preview-sticky" id="outputSection">
-          <div class="preview-label">Subject</div>
-          <div id="subjectOutput" class="subject-box"><span class="empty-preview">Complete the fields to preview a subject.</span></div>
-
-          <div class="preview-label">Generated Email</div>
-          <div id="emailOutput"><span class="empty-preview">Complete the fields to preview the email body.</span></div>
-          <div class="btn-row preview-actions">
-            <button type="button" class="btn-copy" onclick="copySubject()">Copy Subject</button>
-            <button type="button" class="btn-copy" onclick="copyEmail()">Copy Body</button>
-            <span class="copy-feedback" id="copyFeedback">Copied!</span>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <section class="ai-review-panel" id="settlementCalculatorPanel" style="display:none;">
-      <div class="section" style="max-width: 380px; margin-bottom: 1rem;">
-        <label for="settlementClaimType">Claim Type</label>
-        <select id="settlementClaimType" onchange="handleClaimTypeChange()">
-          <option value="gas">Gas Claim</option>
-          <option value="streetlight">Streetlight Claim</option>
-          <option value="escalation">Escalation of Claim</option>
-          <option value="payment">Payment Information</option>
-          <option value="followup">Follow Up</option>
-          <option value="insurance">Insurance Adjuster</option>
-          <option value="settlement" selected>Settlement Calculator</option>
-        </select>
       </div>
-      <h2>Settlement Calculator</h2>
-      <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
-      <div class="ai-review-grid">
+      <nav class="side-nav" aria-label="Primary">
+        <button type="button" onclick="document.getElementById('dashboardPanel').scrollIntoView({behavior:'smooth'});">Dashboard</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('streetlight')">Streetlight</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('settlement')">Settlement</button>
+        <button type="button" onclick="document.getElementById('lawReferencePanel').scrollIntoView({behavior:'smooth'});">State Reference</button>
+      </nav>
+      <button type="button" class="theme-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </aside>
+
+    <div class="container">
+      <header class="app-header">
         <div>
-          <div class="section">
-            <label for="settlementTotalCost">Total Cost</label>
-            <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
-          </div>
-          <div class="section">
-            <label for="settlementReductionPercent">Percentage Reduction</label>
-            <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
-          </div>
-          <label class="checkbox-inline">
-            <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
-            Include 7 day expiration language
-          </label>
-          <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+          <p class="eyebrow">Claims workflow</p>
+          <h2>Draft, calculate, and copy claim language faster.</h2>
         </div>
-        <div>
-          <div class="preview-label">Settlement Summary</div>
-          <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
-          <div class="preview-label">Settlement Statement</div>
-          <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
+        <div class="header-actions">
+          <button type="button" class="btn-copy" onclick="setClaimTypeFromShortcut('settlement')">Open Calculator</button>
+          <button type="button" class="btn-primary" onclick="setClaimTypeFromShortcut('gas')">Start Claim</button>
+        </div>
+      </header>
+
+      <section class="dashboard-panel" id="dashboardPanel">
+        <div class="dashboard-hero">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2>Choose a task and move directly into the workflow.</h2>
+            <p class="helper-text">Use the quick actions below for the most common claim tasks. The original dropdown remains available inside the claim workspace.</p>
+          </div>
+          <div class="metric-card">
+            <span>Current version</span>
+            <strong>Beta 13</strong>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('gas')">
+            <span>Gas Claim</span>
+            <strong>Generate gas damage correspondence</strong>
+          </button>
+          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('streetlight')">
+            <span>Streetlight Claim</span>
+            <strong>Prepare streetlight cable claim language</strong>
+          </button>
+          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('escalation')">
+            <span>Escalation</span>
+            <strong>Create an escalation or deadline response</strong>
+          </button>
+          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('settlement')">
+            <span>Settlement</span>
+            <strong>Calculate SIF and settlement language</strong>
+          </button>
+        </div>
+
+        <div class="template-strip">
+          <div class="template-card"><span>Templates</span><strong>Gas, Streetlight, Escalation, Payment, Follow Up, Insurance</strong></div>
+          <div class="template-card"><span>Tools</span><strong>Settlement calculator, SIF warning, copyable statement</strong></div>
+          <div class="template-card"><span>Reference</span><strong>Texas, Pennsylvania, Michigan, Arkansas quick notes</strong></div>
+        </div>
+      </section>
+
+      <main class="workspace" id="claimWorkspace">
+        <section class="form-panel">
+          <div class="row-2">
+            <div class="section" id="senderSection">
+              <label for="senderName">Your Name <span style="color:var(--red)">*</span></label>
+              <input type="text" id="senderName" placeholder="e.g. Kevin" value="Kevin" />
+              <div class="error-msg" id="err-senderName">Required</div>
+            </div>
+            <div class="section">
+              <label for="claimType">Claim Type</label>
+              <select id="claimType" onchange="handleClaimTypeChange()">
+                <option value="gas">Gas Claim</option>
+                <option value="streetlight">Streetlight Claim</option>
+                <option value="escalation">Escalation of Claim</option>
+                <option value="payment">Payment Information</option>
+                <option value="followup">Follow Up</option>
+                <option value="insurance">Insurance Adjuster</option>
+                <option value="settlement">Settlement Calculator</option>
+              </select>
+            </div>
+          </div>
+
+          <hr class="divider" />
+          <form id="formContainer" novalidate></form>
+          <div id="validationBanner"></div>
+
           <div class="btn-row">
-            <button type="button" class="btn-copy" onclick="copySettlementStatement()">Copy Settlement Statement</button>
-            <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
+            <button type="button" class="btn-primary" onclick="generateEmail()">Generate Email</button>
+            <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+          </div>
+        </section>
+
+        <section class="preview-panel">
+          <div class="preview-sticky" id="outputSection">
+            <div class="preview-label">Subject</div>
+            <div id="subjectOutput" class="subject-box"><span class="empty-preview">Complete the fields to preview a subject.</span></div>
+
+            <div class="preview-label">Generated Email</div>
+            <div id="emailOutput"><span class="empty-preview">Complete the fields to preview the email body.</span></div>
+            <div class="btn-row preview-actions">
+              <button type="button" class="btn-copy" onclick="copySubject()">Copy Subject</button>
+              <button type="button" class="btn-copy" onclick="copyEmail()">Copy Body</button>
+              <span class="copy-feedback" id="copyFeedback">Copied!</span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <section class="ai-review-panel settlement-card" id="settlementCalculatorPanel" style="display:none;">
+        <div class="section" style="max-width: 380px; margin-bottom: 1rem;">
+          <label for="settlementClaimType">Claim Type</label>
+          <select id="settlementClaimType" onchange="handleClaimTypeChange()">
+            <option value="gas">Gas Claim</option>
+            <option value="streetlight">Streetlight Claim</option>
+            <option value="escalation">Escalation of Claim</option>
+            <option value="payment">Payment Information</option>
+            <option value="followup">Follow Up</option>
+            <option value="insurance">Insurance Adjuster</option>
+            <option value="settlement" selected>Settlement Calculator</option>
+          </select>
+        </div>
+        <h2>Settlement Calculator</h2>
+        <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
+        <div class="ai-review-grid">
+          <div>
+            <div class="section">
+              <label for="settlementTotalCost">Total Cost</label>
+              <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
+            </div>
+            <div class="section">
+              <label for="settlementReductionPercent">Percentage Reduction</label>
+              <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
+            </div>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
+              Include 7 day expiration language
+            </label>
+            <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+          </div>
+          <div>
+            <div class="preview-label">Settlement Summary</div>
+            <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
+            <div class="preview-label">Settlement Statement</div>
+            <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
+            <div class="btn-row">
+              <button type="button" class="btn-copy" onclick="copySettlementStatement()">Copy Settlement Statement</button>
+              <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
+      <section class="reference-panel" id="lawReferencePanel">
+        <div>
+          <p class="eyebrow">State Law Reference</p>
+          <h2>Quick claim research reminders</h2>
+        </div>
+        <div class="reference-grid">
+          <article><span>Texas</span><p>Use for 811, tolerance zone, and TAC based underground utility damage arguments.</p></article>
+          <article><span>Pennsylvania</span><p>Use for One Call Act issues, markings, excavation notice, and utility locate disputes.</p></article>
+          <article><span>Michigan</span><p>Use for MISS DIG related gas damage, excavation notice, and locate documentation.</p></article>
+          <article><span>Arkansas</span><p>Use for gas claim review, notice timing, and excavation damage support.</p></article>
+        </div>
+      </section>
+    </div>
   </div>
+
+  <div id="toastNotification" class="toast-notification">Copied</div>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/settlement.js"></script>
   <script src="assets/js/navigation.js"></script>
-
+  <script src="assets/js/ui.js"></script>
 </body>
 </html>
