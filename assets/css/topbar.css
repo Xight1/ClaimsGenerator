@@ -270,6 +270,18 @@ body.dark-mode .floating-theme-toggle {
   justify-self: end;
   min-width: 230px;
   margin: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.header-template-cue span,
+.header-template-cue strong {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 #formContainer > .template-cue {
