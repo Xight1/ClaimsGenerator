@@ -18,8 +18,10 @@
         <button type="button" class="active" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
         <button type="button" onclick="setClaimTypeFromShortcut('streetlight')">Streetlight</button>
         <button type="button" onclick="setClaimTypeFromShortcut('escalation')">Escalation</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('payment')">Payment Information</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('followup')">Follow Up</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('insurance')">Insurance Adjuster</button>
         <button type="button" onclick="setClaimTypeFromShortcut('settlement')">Settlement</button>
-        <button type="button" onclick="document.getElementById('lawReferencePanel').scrollIntoView({behavior:'smooth'});">State Reference</button>
       </nav>
       <div class="topbar-actions">
         <button type="button" class="topbar-link" onclick="toggleDarkMode()">Dark Mode</button>
@@ -34,7 +36,7 @@
         <div>
           <p class="eyebrow">Claims workflow</p>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 15</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 16</span>
         </div>
         <div class="header-actions">
           <button type="button" class="btn-copy" onclick="setClaimTypeFromShortcut('settlement')">Open Calculator</button>
@@ -131,19 +133,6 @@
               <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section class="reference-panel" id="lawReferencePanel">
-        <div>
-          <p class="eyebrow">State Law Reference</p>
-          <h2>Quick claim research reminders</h2>
-        </div>
-        <div class="reference-grid">
-          <article><span>Texas</span><p>Use for 811, tolerance zone, and TAC based underground utility damage arguments.</p></article>
-          <article><span>Pennsylvania</span><p>Use for One Call Act issues, markings, excavation notice, and utility locate disputes.</p></article>
-          <article><span>Michigan</span><p>Use for MISS DIG related gas damage, excavation notice, and locate documentation.</p></article>
-          <article><span>Arkansas</span><p>Use for gas claim review, notice timing, and excavation damage support.</p></article>
         </div>
       </section>
     </div>
