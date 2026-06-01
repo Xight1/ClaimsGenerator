@@ -27,6 +27,16 @@ function updateSelectedTemplateIndicator(value) {
   indicator.innerHTML = `<span>Selected Template</span><strong>${selectedLabel}</strong>`;
 }
 
+function updateActiveTaskbar(value) {
+  document.querySelectorAll('.topbar-nav button').forEach((button) => {
+    const action = button.getAttribute('onclick') || '';
+    const isActive = action.includes(`'${value}'`) || action.includes(`"${value}"`);
+    button.classList.toggle('active', isActive);
+    if (isActive) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
+}
+
 function ensureSettlementPanel() {
   const existing = document.getElementById('settlementCalculatorPanel');
   if (existing) return existing;
@@ -35,52 +45,41 @@ function ensureSettlementPanel() {
   if (!mount) return null;
 
   const panel = document.createElement('section');
-  panel.className = 'ai-review-panel settlement-card';
+  panel.className = 'workspace settlement-workspace';
   panel.id = 'settlementCalculatorPanel';
   panel.style.display = 'none';
 
   panel.innerHTML = `
-    <div class="section" style="max-width: 380px; margin-bottom: 1rem;">
-      <label for="settlementClaimType">Claim Type</label>
-      <select id="settlementClaimType" onchange="handleClaimTypeChange()">
-        <option value="gas">Gas Claim</option>
-        <option value="streetlight">Streetlight Claim</option>
-        <option value="escalation">Escalation of Claim</option>
-        <option value="payment">Payment Information</option>
-        <option value="followup">Follow Up</option>
-        <option value="insurance">Insurance Adjuster</option>
-        <option value="settlement" selected>Settlement Calculator</option>
-      </select>
-    </div>
-    <h2 class="settlement-title">Settlement Calculator</h2>
-    <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
-    <div class="ai-review-grid">
-      <div>
-        <div class="section">
-          <label for="settlementTotalCost">Total Cost</label>
-          <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
-        </div>
-        <div class="section">
-          <label for="settlementReductionPercent">Percentage Reduction</label>
-          <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
-        </div>
-        <label class="checkbox-inline">
-          <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
-          Include 7 day expiration language
-        </label>
-        <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+    <section class="form-panel settlement-form-panel">
+      <div class="section-heading settlement-title">Settlement Calculator</div>
+      <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
+      <div class="section">
+        <label for="settlementTotalCost">Total Cost</label>
+        <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
       </div>
-      <div>
+      <div class="section">
+        <label for="settlementReductionPercent">Percentage Reduction</label>
+        <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
+      </div>
+      <label class="checkbox-inline">
+        <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
+        Include 7 day expiration language
+      </label>
+      <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+    </section>
+
+    <section class="preview-panel settlement-preview-panel">
+      <div class="preview-sticky">
         <div class="preview-label">Settlement Summary</div>
         <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
         <div class="preview-label">Settlement Statement</div>
         <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
-        <div class="btn-row">
+        <div class="btn-row preview-actions settlement-actions">
           <button type="button" class="btn-primary" onclick="copySettlementStatement()">Copy Settlement Statement</button>
           <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
         </div>
       </div>
-    </div>
+    </section>
   `;
 
   mount.replaceChildren(panel);
@@ -110,10 +109,11 @@ function handleClaimTypeChange() {
 
   syncClaimTypeSelects(selectedType);
   updateSelectedTemplateIndicator(selectedType);
+  updateActiveTaskbar(selectedType);
 
   if (selectedType === 'settlement') {
     if (claimWorkspace) claimWorkspace.style.display = 'none';
-    if (settlementPanel) settlementPanel.style.display = 'block';
+    if (settlementPanel) settlementPanel.style.display = 'grid';
     ensureSettlementScriptLoaded().then(() => {
       if (typeof calculateSettlement === 'function') calculateSettlement();
     }).catch(() => {});
@@ -127,7 +127,9 @@ function handleClaimTypeChange() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const claimType = document.getElementById('claimType');
-  updateSelectedTemplateIndicator(claimType?.value || 'gas');
+  const initialType = claimType?.value || 'gas';
+  updateSelectedTemplateIndicator(initialType);
+  updateActiveTaskbar(initialType);
   if (claimType && claimType.value === 'settlement') {
     handleClaimTypeChange();
   }
