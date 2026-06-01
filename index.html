@@ -12,7 +12,7 @@
   <div class="container">
     <header class="app-header">
       <h1>Claim Generator</h1>
-      <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 8</span>
+      <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 9</span>
     </header>
 
     <main class="workspace">
@@ -65,10 +65,43 @@
       </section>
     </main>
 
+    <section class="ai-review-panel" id="settlementCalculatorPanel">
+      <h2>Settlement Calculator</h2>
+      <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
+      <div class="ai-review-grid">
+        <div>
+          <div class="section">
+            <label for="settlementTotalCost">Total Cost</label>
+            <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
+          </div>
+          <div class="section">
+            <label for="settlementReductionPercent">Percentage Reduction</label>
+            <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
+          </div>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
+            Include 7 day expiration language
+          </label>
+          <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+        </div>
+        <div>
+          <div class="preview-label">Settlement Summary</div>
+          <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
+          <div class="preview-label">Settlement Statement</div>
+          <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
+          <div class="btn-row">
+            <button type="button" class="btn-copy" onclick="copySettlementStatement()">Copy Settlement Statement</button>
+            <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/settlement.js"></script>
 
 </body>
 </html>
