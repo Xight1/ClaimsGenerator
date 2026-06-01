@@ -30,33 +30,33 @@
 
   <div class="shell topbar-layout">
     <div class="container">
-      <header class="app-header">
-        <div>
+      <header class="app-header app-header-centered">
+        <div class="header-title-block">
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 24</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 25</span>
+        </div>
+        <div class="template-cue header-template-cue" id="selectedTemplateIndicator">
+          <span>Selected Template</span>
+          <strong>Gas Claim</strong>
         </div>
       </header>
 
       <main class="workspace" id="claimWorkspace">
         <section class="form-panel">
-          <div class="row-2">
-            <div class="section" id="senderSection">
-              <label for="senderName">Your Name <span style="color:var(--red)">*</span></label>
-              <input type="text" id="senderName" placeholder="e.g. Kevin" value="Kevin" />
-              <div class="error-msg" id="err-senderName">Required</div>
-            </div>
-            <div class="section">
-              <label for="claimType">Claim Type</label>
-              <select id="claimType" onchange="handleClaimTypeChange()">
-                <option value="gas">Gas Claim</option>
-                <option value="streetlight">Streetlight Claim</option>
-                <option value="escalation">Escalation of Claim</option>
-                <option value="payment">Payment Information</option>
-                <option value="followup">Follow Up</option>
-                <option value="insurance">Insurance Adjuster</option>
-                <option value="settlement">Settlement Calculator</option>
-              </select>
-            </div>
+          <select id="claimType" class="hidden-control" onchange="handleClaimTypeChange()" aria-hidden="true" tabindex="-1">
+            <option value="gas">Gas Claim</option>
+            <option value="streetlight">Streetlight Claim</option>
+            <option value="escalation">Escalation of Claim</option>
+            <option value="payment">Payment Information</option>
+            <option value="followup">Follow Up</option>
+            <option value="insurance">Insurance Adjuster</option>
+            <option value="settlement">Settlement Calculator</option>
+          </select>
+
+          <div class="section" id="senderSection">
+            <label for="senderName">Your Name <span style="color:var(--red)">*</span></label>
+            <input type="text" id="senderName" placeholder="e.g. Kevin" value="Kevin" />
+            <div class="error-msg" id="err-senderName">Required</div>
           </div>
 
           <hr class="divider" />
@@ -65,7 +65,7 @@
 
           <div class="btn-row">
             <button type="button" class="btn-primary" onclick="generateEmail()">Generate Email</button>
-            <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+            <button type="button" class="btn-danger" onclick="resetForm()">Reset</button>
           </div>
         </section>
 
@@ -77,8 +77,8 @@
             <div class="preview-label">Generated Email</div>
             <div id="emailOutput"><span class="empty-preview">Complete the fields to preview the email body.</span></div>
             <div class="btn-row preview-actions">
-              <button type="button" class="btn-copy" onclick="copySubject()">Copy Subject</button>
-              <button type="button" class="btn-copy" onclick="copyEmail()">Copy Body</button>
+              <button type="button" class="btn-primary" onclick="copySubject()">Copy Subject</button>
+              <button type="button" class="btn-primary" onclick="copyEmail()">Copy Body</button>
               <span class="copy-feedback" id="copyFeedback">Copied!</span>
             </div>
           </div>
@@ -90,7 +90,6 @@
   </div>
 
   <button type="button" id="floatingThemeToggle" class="floating-theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode"><span aria-hidden="true">☀</span></button>
-  <div id="toastNotification" class="toast-notification">Copied</div>
 
   <script src="assets/js/config.js" defer></script>
   <script src="assets/js/app.js" defer></script>
