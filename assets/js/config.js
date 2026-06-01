@@ -1,3 +1,1 @@
-window.CLAIMS_GENERATOR_CONFIG = {
-  version: "Claims Generator v2026-06-01 beta 7"
-};
+window.CLAIMS_GENERATOR_CONFIG = { version: "Claims Generator v2026-06-01 beta 9" };
