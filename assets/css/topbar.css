@@ -1,0 +1,165 @@
+.topbar-shell {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0.75rem 1rem 0;
+}
+
+.top-taskbar {
+  align-items: center;
+  background: rgba(12, 14, 18, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 18px 45px rgba(2, 6, 23, 0.28);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1320px;
+  min-height: 74px;
+  padding: 0.7rem 0.9rem;
+  backdrop-filter: blur(14px);
+}
+
+.topbar-brand {
+  align-items: center;
+  background: transparent;
+  border: none;
+  display: flex;
+  padding: 0;
+}
+
+.topbar-brand .brand-mark,
+.brand-mark {
+  align-items: center;
+  background: linear-gradient(145deg, #60a5fa, #1d4ed8);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.88rem;
+  font-weight: 800;
+  height: 46px;
+  justify-content: center;
+  letter-spacing: -0.04em;
+  min-width: 46px;
+  width: 46px;
+}
+
+.topbar-nav {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+  justify-content: center;
+  min-width: 0;
+}
+
+.topbar-nav button,
+.topbar-link {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.85rem 1rem;
+  white-space: nowrap;
+}
+
+.topbar-nav button:hover,
+.topbar-link:hover,
+.topbar-nav button.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: none;
+}
+
+.topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.45rem;
+}
+
+.topbar-cta {
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(255, 255, 255, 0.14);
+  color: #111827;
+  font-size: 0.98rem;
+  font-weight: 700;
+  padding: 0.92rem 1.35rem;
+  white-space: nowrap;
+}
+
+.topbar-cta:hover {
+  background: #f8fafc;
+  transform: none;
+}
+
+.topbar-layout {
+  display: block;
+  padding-top: 1rem;
+}
+
+.topbar-layout .container {
+  max-width: 1240px;
+}
+
+.topbar-layout .app-header {
+  border-radius: 22px 22px 0 0;
+}
+
+body.dark-mode .top-taskbar {
+  background: rgba(3, 7, 18, 0.96);
+}
+
+@media (max-width: 980px) {
+  .top-taskbar {
+    align-items: stretch;
+    border-radius: 28px;
+    flex-direction: column;
+    padding: 0.85rem;
+  }
+
+  .topbar-nav {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+  }
+
+  .topbar-actions {
+    justify-content: space-between;
+  }
+
+  .topbar-cta,
+  .topbar-link {
+    flex: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar-shell {
+    padding: 0.5rem;
+  }
+
+  .top-taskbar {
+    border-radius: 22px;
+    min-height: auto;
+  }
+
+  .topbar-nav button,
+  .topbar-link,
+  .topbar-cta {
+    font-size: 0.9rem;
+    padding: 0.72rem 0.85rem;
+  }
+
+  .topbar-brand .brand-mark,
+  .brand-mark {
+    height: 40px;
+    min-width: 40px;
+    width: 40px;
+  }
+}
