@@ -43,7 +43,6 @@ function toggleDarkMode() {
   localStorage.setItem('claimsGeneratorTheme', nextTheme);
   localStorage.setItem('claimsGeneratorDarkMode', nextTheme === 'dark' ? 'true' : 'false');
   applyTheme(nextTheme);
-  showToast(nextTheme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled');
 }
 
 function initializeTheme() {
@@ -65,17 +64,6 @@ function initializeTheme() {
 
 function initializeUIEnhancements() {
   initializeTheme();
-
-  const originalWriteText = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText.bind(navigator.clipboard) : null;
-  if (originalWriteText && !navigator.clipboard.__claimsToastWrapped) {
-    navigator.clipboard.writeText = function(text) {
-      return originalWriteText(text).then((result) => {
-        showToast('Copied to clipboard');
-        return result;
-      });
-    };
-    navigator.clipboard.__claimsToastWrapped = true;
-  }
 }
 
 document.addEventListener('DOMContentLoaded', initializeUIEnhancements);
