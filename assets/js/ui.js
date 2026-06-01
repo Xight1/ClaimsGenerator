@@ -16,17 +16,52 @@ function setClaimTypeFromShortcut(type) {
   document.getElementById(type === 'settlement' ? 'settlementCalculatorPanel' : 'claimWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function getPreferredTheme() {
+  const savedTheme = localStorage.getItem('claimsGeneratorTheme');
+  if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  const isDark = theme === 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.body.classList.toggle('dark-mode', isDark);
+  const toggle = document.getElementById('floatingThemeToggle');
+  if (toggle) {
+    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    toggle.innerHTML = isDark ? '<span aria-hidden="true">☀</span>' : '<span aria-hidden="true">☀</span>';
+  }
+}
+
 function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const enabled = document.body.classList.contains('dark-mode');
-  localStorage.setItem('claimsGeneratorDarkMode', enabled ? 'true' : 'false');
-  showToast(enabled ? 'Dark mode enabled' : 'Light mode enabled');
+  const currentTheme = document.documentElement.getAttribute('data-theme') || getPreferredTheme();
+  const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('claimsGeneratorTheme', nextTheme);
+  localStorage.setItem('claimsGeneratorDarkMode', nextTheme === 'dark' ? 'true' : 'false');
+  applyTheme(nextTheme);
+  showToast(nextTheme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled');
+}
+
+function initializeTheme() {
+  const legacyPreference = localStorage.getItem('claimsGeneratorDarkMode');
+  if (!localStorage.getItem('claimsGeneratorTheme') && legacyPreference === 'true') {
+    localStorage.setItem('claimsGeneratorTheme', 'dark');
+  }
+  applyTheme(getPreferredTheme());
+
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener?.('change', (event) => {
+      if (!localStorage.getItem('claimsGeneratorTheme')) {
+        applyTheme(event.matches ? 'dark' : 'light');
+      }
+    });
+  }
 }
 
 function initializeUIEnhancements() {
-  if (localStorage.getItem('claimsGeneratorDarkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-  }
+  initializeTheme();
 
   const originalWriteText = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText.bind(navigator.clipboard) : null;
   if (originalWriteText && !navigator.clipboard.__claimsToastWrapped) {
