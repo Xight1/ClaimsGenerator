@@ -1,5 +1,14 @@
 // Claim Generator core logic
 const $ = (id) => document.getElementById(id);
+let previewFrame = 0;
+
+function schedulePreviewUpdate() {
+  if (previewFrame) return;
+  previewFrame = requestAnimationFrame(() => {
+    previewFrame = 0;
+    updatePreview();
+  });
+}
 
 const preserved = {};
 const sharedIds = ['recipient', 'followUpRecipient', 'client', 'customClient', 'clientClaim', 'tccClaim', 'insuranceClaim', 'cost', 'damageStreet', 'damageCity', 'deadlineDate'];
@@ -236,7 +245,7 @@ function buildSelectField(field, container) {
       customInput.removeAttribute('data-required');
       clearError(customInput, `err-${field.customInput.id}`);
     }
-    updatePreview();
+    schedulePreviewUpdate();
   };
 
   select.addEventListener('change', toggleCustomInput);
@@ -546,26 +555,26 @@ function resetForm() {
 
 document.addEventListener('input', () => {
   savePreserved();
-  updatePreview();
+  schedulePreviewUpdate();
 }, true);
 
 document.addEventListener('blur', (event) => {
   if (event.target.id === 'cost' && isValidCurrency(event.target.value)) {
     event.target.value = formatCost(event.target.value);
     savePreserved();
-    updatePreview();
+    schedulePreviewUpdate();
   }
   if (event.target.id === 'deadlineDate') {
     normalizeDeadlineInput();
     savePreserved();
-    updatePreview();
+    schedulePreviewUpdate();
   }
 }, true);
 
 document.addEventListener('change', () => {
   normalizeDeadlineInput();
   savePreserved();
-  updatePreview();
+  schedulePreviewUpdate();
   saveDefaults();
 });
 
