@@ -33,7 +33,7 @@
       <header class="app-header">
         <div>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 23</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 24</span>
         </div>
       </header>
 
@@ -79,6 +79,7 @@
             <div class="btn-row preview-actions">
               <button type="button" class="btn-copy" onclick="copySubject()">Copy Subject</button>
               <button type="button" class="btn-copy" onclick="copyEmail()">Copy Body</button>
+              <span class="copy-feedback" id="copyFeedback">Copied!</span>
             </div>
           </div>
         </section>
@@ -89,6 +90,7 @@
   </div>
 
   <button type="button" id="floatingThemeToggle" class="floating-theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode"><span aria-hidden="true">☀</span></button>
+  <div id="toastNotification" class="toast-notification">Copied</div>
 
   <script src="assets/js/config.js" defer></script>
   <script src="assets/js/app.js" defer></script>
