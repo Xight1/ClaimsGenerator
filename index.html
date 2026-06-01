@@ -357,13 +357,80 @@
 
     .copy-feedback.show { opacity: 1; }
 
+
+
+    .ai-review-panel {
+      border-top: 1px solid var(--gray-200);
+      padding: 1.25rem;
+      background: #fff;
+    }
+
+    .ai-review-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.85fr);
+      gap: 1.25rem;
+    }
+
+    .helper-text {
+      color: var(--gray-600);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin: 0 0 1rem;
+    }
+
+    .file-list {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      background: var(--gray-50);
+      min-height: 3rem;
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    .file-list div { margin-bottom: 0.35rem; }
+
+    .status-box {
+      display: none;
+      border-radius: var(--radius);
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .status-box.info {
+      display: block;
+      background: var(--blue-light);
+      border: 1px solid #bfdbfe;
+      color: var(--blue-dark);
+    }
+
+    .status-box.error {
+      display: block;
+      background: var(--red-light);
+      border: 1px solid var(--red);
+      color: var(--red);
+    }
+
+    #aiCaseOutput {
+      white-space: pre-wrap;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.65;
+      min-height: 24rem;
+    }
+
     @media (max-width: 860px) {
       body { padding: 1rem; }
       .app-header {
         align-items: flex-start;
         flex-direction: column;
       }
-      .workspace { grid-template-columns: 1fr; }
+      .workspace, .ai-review-grid { grid-template-columns: 1fr; }
       .form-panel { border-right: none; border-bottom: 1px solid var(--gray-200); }
       .preview-sticky { position: static; }
     }
@@ -395,7 +462,7 @@
   <div class="container">
     <header class="app-header">
       <h1>Claim Generator</h1>
-      <span class="app-version">Templates v2026.05.29</span>
+      <span class="app-version">Claims Generator v2026-06-01 beta 5</span>
     </header>
 
     <main class="workspace">
@@ -447,6 +514,46 @@
         </div>
       </section>
     </main>
+
+    <section class="ai-review-panel">
+      <h2>AI Case Review</h2>
+      <p class="helper-text">Upload claim documents and add optional notes. The AI review uses a cost efficient capable default model and should be verified before relying on it.</p>
+      <div class="ai-review-grid">
+        <div>
+          <div class="section">
+            <label for="aiClaimType">Case Type</label>
+            <select id="aiClaimType">
+              <option value="Gas Claim">Gas Claim</option>
+              <option value="Streetlight Claim">Streetlight Claim</option>
+              <option value="General Utility Claim">General Utility Claim</option>
+              <option value="Insurance Escalation">Insurance Escalation</option>
+            </select>
+          </div>
+          <div class="section">
+            <label for="caseFiles">Upload Files</label>
+            <input type="file" id="caseFiles" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.webp" onchange="renderSelectedFiles()" />
+            <div id="selectedFiles" class="file-list">No files selected.</div>
+          </div>
+          <div class="section">
+            <label for="caseNotes">Optional Case Notes</label>
+            <textarea id="caseNotes" rows="8" placeholder="Add any facts, claim notes, adverse party position, insurance response, or instructions the AI should consider."></textarea>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-primary" onclick="analyzeCaseWithAI()">Analyze Case</button>
+            <button type="button" class="btn-secondary" onclick="clearAIReview()">Clear Review</button>
+          </div>
+          <div id="aiStatus" class="status-box"></div>
+        </div>
+        <div>
+          <div class="preview-label">AI Case Breakdown</div>
+          <div id="aiCaseOutput"><span class="empty-preview">Upload files, add notes if needed, then click Analyze Case.</span></div>
+          <div class="btn-row">
+            <button type="button" class="btn-copy" onclick="copyAIReview()">Copy Case Breakdown</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
 
   <script>
@@ -999,7 +1106,7 @@
           : '';
         return {
           subject,
-          body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status or if there is anything else needed from our side to help move this toward resolution.${deadlineText}\n\nI appreciate your prompt attention and look forward to your response.\n\nThank you,\nThe Claims Center (TCC)`
+          body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status or if there is anything else needed from our side to help move this toward resolution.${deadlineText}\n\nI appreciate your prompt attention and look forward to your response.`
         };
       }
 
@@ -1007,7 +1114,7 @@
         const cost = formatCost(getValue('cost', ''));
         return {
           subject,
-          body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To: ${client}, c/o The Claims Center LLC, P.O. Box 270410, Minneapolis, MN 55427\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.\n\nThank you,\n${senderName}\nThe Claims Center (TCC)`
+          body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To: ${client}, c/o The Claims Center LLC, P.O. Box 270410, Minneapolis, MN 55427\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.`
         };
       }
 
@@ -1015,7 +1122,7 @@
         const dueDate = getDeadlineDate();
         return {
           subject,
-          body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.\n\nThank you,\n${senderName}\nThe Claims Center (TCC)`
+          body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.`
         };
       }
 
@@ -1054,7 +1161,7 @@
         body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
       }
 
-      body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.\n\nWe have a limited window to resolve this claim. If no meaningful progress is made toward a resolution within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions.\n\nThank you,\n${senderName}\nThe Claims Center (TCC)`;
+      body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.\n\nWe have a limited window to resolve this claim. If no meaningful progress is made toward a resolution within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions.`;
 
       return { subject, body };
     }
@@ -1127,6 +1234,120 @@
       document.getElementById('senderName').value = DEFAULT_SENDER_NAME;
       Object.keys(preserved).forEach(k => delete preserved[k]);
       renderForm({ applyDefaults: false });
+    }
+
+
+
+    // ─── AI Case Review ─────────────────────────────────────────────────────
+    function renderSelectedFiles() {
+      const input = document.getElementById('caseFiles');
+      const list = document.getElementById('selectedFiles');
+      if (!input.files || input.files.length === 0) {
+        list.textContent = 'No files selected.';
+        return;
+      }
+      list.innerHTML = Array.from(input.files).map(file => {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        return `<div>${escapeHtml(file.name)} · ${sizeMb} MB</div>`;
+      }).join('');
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[char]));
+    }
+
+    function setAIStatus(message, type = 'info') {
+      const status = document.getElementById('aiStatus');
+      status.textContent = message;
+      status.className = `status-box ${type}`;
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          resolve(result.split(',')[1] || '');
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function analyzeCaseWithAI() {
+      const input = document.getElementById('caseFiles');
+      const files = Array.from(input.files || []);
+      const notes = document.getElementById('caseNotes').value.trim();
+      const claimType = document.getElementById('aiClaimType').value;
+
+      if (!files.length && !notes) {
+        setAIStatus('Upload at least one file or enter case notes before analyzing.', 'error');
+        return;
+      }
+
+      const maxFileSize = 20 * 1024 * 1024;
+      const oversized = files.find(file => file.size > maxFileSize);
+      if (oversized) {
+        setAIStatus(`${oversized.name} is larger than 20 MB. Remove it or reduce the file size.`, 'error');
+        return;
+      }
+
+      setAIStatus('Analyzing case materials. Keep this page open until the review appears.', 'info');
+      document.getElementById('aiCaseOutput').textContent = 'Review in progress...';
+
+      try {
+        const encodedFiles = await Promise.all(files.map(async file => ({
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size,
+          data: await fileToBase64(file)
+        })));
+
+        const response = await fetch('/.netlify/functions/analyze-case', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ claimType, notes, files: encodedFiles })
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const text = await response.text();
+          const looksLikeHtml = text.trim().startsWith('<');
+          throw new Error(looksLikeHtml
+            ? 'The Netlify AI function is not active. Deploy this version through Git or the Netlify CLI so netlify/functions/analyze-case.js is published.'
+            : 'The AI function returned an unexpected response. Check the Netlify function deployment and logs.');
+        }
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'The AI review failed.');
+
+        document.getElementById('aiCaseOutput').textContent = result.analysis || 'No analysis returned.';
+        setAIStatus('Case review completed. Verify the facts before sending or saving the analysis.', 'info');
+      } catch (error) {
+        document.getElementById('aiCaseOutput').innerHTML = '<span class="empty-preview">The AI case review could not be completed.</span>';
+        setAIStatus(error.message || 'The AI review failed.', 'error');
+      }
+    }
+
+    function clearAIReview() {
+      document.getElementById('caseFiles').value = '';
+      document.getElementById('caseNotes').value = '';
+      renderSelectedFiles();
+      document.getElementById('aiCaseOutput').innerHTML = '<span class="empty-preview">Upload files, add notes if needed, then click Analyze Case.</span>';
+      document.getElementById('aiStatus').className = 'status-box';
+      document.getElementById('aiStatus').textContent = '';
+    }
+
+    function copyAIReview() {
+      navigator.clipboard.writeText(document.getElementById('aiCaseOutput').innerText).then(() => {
+        showCopyFeedback('Case breakdown copied!');
+      });
     }
 
     // ─── Init ────────────────────────────────────────────────────────────────

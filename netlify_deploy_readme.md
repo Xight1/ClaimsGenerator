@@ -1,12 +1,38 @@
-# Claim Generator Netlify Deploy
+# Claims Generator v2026-06-01 beta 5
 
-This folder is ready for Netlify drag-and-drop deployment.
+This version includes the API based AI Case Review section.
 
-## Deploy
+## Required environment variable
 
-1. Sign in to Netlify.
-2. Go to **Sites**.
-3. Drag `claim-generator-netlify.zip` onto the deploy area.
-4. Netlify will serve `index.html` as the app entry point.
+Add this in Netlify before testing the AI section:
 
-No build command is required.
+```
+OPENAI_API_KEY
+```
+
+Optional model override:
+
+```
+OPENAI_MODEL
+```
+
+Default model: `gpt-4.1-mini`
+
+## Important deployment note
+
+The AI Case Review section requires the Netlify Function located at:
+
+```
+netlify/functions/analyze-case.js
+```
+
+For the function to work, deploy through a connected GitHub repository or the Netlify CLI. A basic drag and drop static deploy may publish `index.html` but not activate the serverless function.
+
+## Expected file structure
+
+```
+index.html
+netlify.toml
+netlify/functions/analyze-case.js
+netlify_deploy_readme.md
+```
