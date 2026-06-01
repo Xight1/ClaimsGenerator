@@ -35,10 +35,9 @@
         <div>
           <p class="eyebrow">Claims workflow</p>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 17</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 18</span>
         </div>
         <div class="header-actions">
-          <button type="button" class="btn-copy theme-header-toggle" onclick="toggleDarkMode()">Dark Mode</button>
           <button type="button" class="btn-copy" onclick="setClaimTypeFromShortcut('settlement')">Open Calculator</button>
           <button type="button" class="btn-primary" onclick="setClaimTypeFromShortcut('gas')">Start Claim</button>
         </div>
@@ -138,6 +137,7 @@
     </div>
   </div>
 
+  <button type="button" id="floatingThemeToggle" class="floating-theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode"><span aria-hidden="true">☀</span></button>
   <div id="toastNotification" class="toast-notification">Copied</div>
 
   <script src="assets/js/config.js"></script>
