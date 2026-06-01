@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Claim Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/topbar.css" />
@@ -35,7 +37,7 @@
         <div>
           <p class="eyebrow">Claims workflow</p>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 20</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 21</span>
         </div>
       </header>
 
@@ -136,10 +138,11 @@
   <button type="button" id="floatingThemeToggle" class="floating-theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode"><span aria-hidden="true">☀</span></button>
   <div id="toastNotification" class="toast-notification">Copied</div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/settlement.js"></script>
-  <script src="assets/js/navigation.js"></script>
-  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/config.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/performance.js" defer></script>
+  <script src="assets/js/settlement.js" defer></script>
+  <script src="assets/js/navigation.js" defer></script>
+  <script src="assets/js/ui.js" defer></script>
 </body>
 </html>
