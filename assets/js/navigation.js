@@ -14,6 +14,19 @@ function syncClaimTypeSelects(value) {
   if (settlementClaimType) settlementClaimType.value = value;
 }
 
+function getTemplateLabel(value) {
+  const claimType = document.getElementById('claimType');
+  const option = claimType?.querySelector(`option[value="${value}"]`);
+  return option?.textContent || 'Gas Claim';
+}
+
+function updateSelectedTemplateIndicator(value) {
+  const indicator = document.getElementById('selectedTemplateIndicator');
+  if (!indicator) return;
+  const selectedLabel = getTemplateLabel(value);
+  indicator.innerHTML = `<span>Selected Template</span><strong>${selectedLabel}</strong>`;
+}
+
 function ensureSettlementPanel() {
   const existing = document.getElementById('settlementCalculatorPanel');
   if (existing) return existing;
@@ -39,7 +52,7 @@ function ensureSettlementPanel() {
         <option value="settlement" selected>Settlement Calculator</option>
       </select>
     </div>
-    <h2>Settlement Calculator</h2>
+    <h2 class="settlement-title">Settlement Calculator</h2>
     <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
     <div class="ai-review-grid">
       <div>
@@ -63,7 +76,8 @@ function ensureSettlementPanel() {
         <div class="preview-label">Settlement Statement</div>
         <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
         <div class="btn-row">
-          <button type="button" class="btn-copy" onclick="copySettlementStatement()">Copy Settlement Statement</button>
+          <button type="button" class="btn-primary" onclick="copySettlementStatement()">Copy Settlement Statement</button>
+          <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
         </div>
       </div>
     </div>
@@ -95,6 +109,7 @@ function handleClaimTypeChange() {
   const settlementPanel = selectedType === 'settlement' ? ensureSettlementPanel() : document.getElementById('settlementCalculatorPanel');
 
   syncClaimTypeSelects(selectedType);
+  updateSelectedTemplateIndicator(selectedType);
 
   if (selectedType === 'settlement') {
     if (claimWorkspace) claimWorkspace.style.display = 'none';
@@ -112,6 +127,7 @@ function handleClaimTypeChange() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const claimType = document.getElementById('claimType');
+  updateSelectedTemplateIndicator(claimType?.value || 'gas');
   if (claimType && claimType.value === 'settlement') {
     handleClaimTypeChange();
   }
