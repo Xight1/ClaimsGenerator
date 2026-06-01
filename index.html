@@ -33,7 +33,7 @@
       <header class="app-header">
         <div>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 22</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 23</span>
         </div>
       </header>
 
@@ -84,48 +84,7 @@
         </section>
       </main>
 
-      <section class="ai-review-panel settlement-card" id="settlementCalculatorPanel" style="display:none;">
-        <div class="section" style="max-width: 380px; margin-bottom: 1rem;">
-          <label for="settlementClaimType">Claim Type</label>
-          <select id="settlementClaimType" onchange="handleClaimTypeChange()">
-            <option value="gas">Gas Claim</option>
-            <option value="streetlight">Streetlight Claim</option>
-            <option value="escalation">Escalation of Claim</option>
-            <option value="payment">Payment Information</option>
-            <option value="followup">Follow Up</option>
-            <option value="insurance">Insurance Adjuster</option>
-            <option value="settlement" selected>Settlement Calculator</option>
-          </select>
-        </div>
-        <h2>Settlement Calculator</h2>
-        <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
-        <div class="ai-review-grid">
-          <div>
-            <div class="section">
-              <label for="settlementTotalCost">Total Cost</label>
-              <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
-            </div>
-            <div class="section">
-              <label for="settlementReductionPercent">Percentage Reduction</label>
-              <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
-            </div>
-            <label class="checkbox-inline">
-              <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
-              Include 7 day expiration language
-            </label>
-            <div id="settlementWarning" class="status-box error" style="display:none;"></div>
-          </div>
-          <div>
-            <div class="preview-label">Settlement Summary</div>
-            <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
-            <div class="preview-label">Settlement Statement</div>
-            <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
-            <div class="btn-row">
-              <button type="button" class="btn-copy" onclick="copySettlementStatement()">Copy Settlement Statement</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div id="settlementMount"></div>
     </div>
   </div>
 
@@ -134,7 +93,6 @@
   <script src="assets/js/config.js" defer></script>
   <script src="assets/js/app.js" defer></script>
   <script src="assets/js/performance.js" defer></script>
-  <script src="assets/js/settlement.js" defer></script>
   <script src="assets/js/navigation.js" defer></script>
   <script src="assets/js/ui.js" defer></script>
 </body>

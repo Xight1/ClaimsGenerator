@@ -13,7 +13,10 @@ function setClaimTypeFromShortcut(type) {
   if (claimType) claimType.value = type;
   if (settlementClaimType) settlementClaimType.value = type;
   if (typeof handleClaimTypeChange === 'function') handleClaimTypeChange();
-  document.getElementById(type === 'settlement' ? 'settlementCalculatorPanel' : 'claimWorkspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const targetId = type === 'settlement' ? 'settlementCalculatorPanel' : 'claimWorkspace';
+  requestAnimationFrame(() => {
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 function getPreferredTheme() {
