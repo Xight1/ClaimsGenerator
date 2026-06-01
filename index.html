@@ -6,31 +6,35 @@
   <title>Claim Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/topbar.css" />
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand-block">
-        <div class="brand-mark">CG</div>
-        <div>
-          <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 14</span>
-        </div>
-      </div>
-      <nav class="side-nav" aria-label="Primary">
-        <button type="button" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
+  <div class="topbar-shell">
+    <header class="top-taskbar">
+      <button type="button" class="topbar-brand" onclick="setClaimTypeFromShortcut('gas')" aria-label="Claims Generator home">
+        <span class="brand-mark">CG</span>
+      </button>
+      <nav class="topbar-nav" aria-label="Primary navigation">
+        <button type="button" class="active" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
         <button type="button" onclick="setClaimTypeFromShortcut('streetlight')">Streetlight</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('escalation')">Escalation</button>
         <button type="button" onclick="setClaimTypeFromShortcut('settlement')">Settlement</button>
         <button type="button" onclick="document.getElementById('lawReferencePanel').scrollIntoView({behavior:'smooth'});">State Reference</button>
       </nav>
-      <button type="button" class="theme-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-    </aside>
+      <div class="topbar-actions">
+        <button type="button" class="topbar-link" onclick="toggleDarkMode()">Dark Mode</button>
+        <button type="button" class="topbar-cta" onclick="setClaimTypeFromShortcut('settlement')">Open Calculator</button>
+      </div>
+    </header>
+  </div>
 
+  <div class="shell topbar-layout">
     <div class="container">
       <header class="app-header">
         <div>
           <p class="eyebrow">Claims workflow</p>
-          <h2>Draft, calculate, and copy claim language faster.</h2>
+          <h1>Claims Generator</h1>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 15</span>
         </div>
         <div class="header-actions">
           <button type="button" class="btn-copy" onclick="setClaimTypeFromShortcut('settlement')">Open Calculator</button>
