@@ -14,11 +14,10 @@
         <div class="brand-mark">CG</div>
         <div>
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 13</span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 14</span>
         </div>
       </div>
       <nav class="side-nav" aria-label="Primary">
-        <button type="button" onclick="document.getElementById('dashboardPanel').scrollIntoView({behavior:'smooth'});">Dashboard</button>
         <button type="button" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
         <button type="button" onclick="setClaimTypeFromShortcut('streetlight')">Streetlight</button>
         <button type="button" onclick="setClaimTypeFromShortcut('settlement')">Settlement</button>
@@ -38,45 +37,6 @@
           <button type="button" class="btn-primary" onclick="setClaimTypeFromShortcut('gas')">Start Claim</button>
         </div>
       </header>
-
-      <section class="dashboard-panel" id="dashboardPanel">
-        <div class="dashboard-hero">
-          <div>
-            <p class="eyebrow">Dashboard</p>
-            <h2>Choose a task and move directly into the workflow.</h2>
-            <p class="helper-text">Use the quick actions below for the most common claim tasks. The original dropdown remains available inside the claim workspace.</p>
-          </div>
-          <div class="metric-card">
-            <span>Current version</span>
-            <strong>Beta 13</strong>
-          </div>
-        </div>
-
-        <div class="quick-grid">
-          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('gas')">
-            <span>Gas Claim</span>
-            <strong>Generate gas damage correspondence</strong>
-          </button>
-          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('streetlight')">
-            <span>Streetlight Claim</span>
-            <strong>Prepare streetlight cable claim language</strong>
-          </button>
-          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('escalation')">
-            <span>Escalation</span>
-            <strong>Create an escalation or deadline response</strong>
-          </button>
-          <button type="button" class="quick-card" onclick="setClaimTypeFromShortcut('settlement')">
-            <span>Settlement</span>
-            <strong>Calculate SIF and settlement language</strong>
-          </button>
-        </div>
-
-        <div class="template-strip">
-          <div class="template-card"><span>Templates</span><strong>Gas, Streetlight, Escalation, Payment, Follow Up, Insurance</strong></div>
-          <div class="template-card"><span>Tools</span><strong>Settlement calculator, SIF warning, copyable statement</strong></div>
-          <div class="template-card"><span>Reference</span><strong>Texas, Pennsylvania, Michigan, Arkansas quick notes</strong></div>
-        </div>
-      </section>
 
       <main class="workspace" id="claimWorkspace">
         <section class="form-panel">
