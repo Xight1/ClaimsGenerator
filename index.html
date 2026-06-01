@@ -12,7 +12,7 @@
   <div class="container">
     <header class="app-header">
       <h1>Claim Generator</h1>
-      <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 7</span>
+      <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 8</span>
     </header>
 
     <main class="workspace">
@@ -64,45 +64,6 @@
         </div>
       </section>
     </main>
-
-    <section class="ai-review-panel">
-      <h2>AI Case Review</h2>
-      <p class="helper-text">Upload claim documents and add optional notes. The AI review uses a cost efficient capable default model and should be verified before relying on it.</p>
-      <div class="ai-review-grid">
-        <div>
-          <div class="section">
-            <label for="aiClaimType">Case Type</label>
-            <select id="aiClaimType">
-              <option value="Gas Claim">Gas Claim</option>
-              <option value="Streetlight Claim">Streetlight Claim</option>
-              <option value="General Utility Claim">General Utility Claim</option>
-              <option value="Insurance Escalation">Insurance Escalation</option>
-            </select>
-          </div>
-          <div class="section">
-            <label for="caseFiles">Upload Files</label>
-            <input type="file" id="caseFiles" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.webp" onchange="renderSelectedFiles()" />
-            <div id="selectedFiles" class="file-list">No files selected.</div>
-          </div>
-          <div class="section">
-            <label for="caseNotes">Optional Case Notes</label>
-            <textarea id="caseNotes" rows="8" placeholder="Add any facts, claim notes, adverse party position, insurance response, or instructions the AI should consider."></textarea>
-          </div>
-          <div class="btn-row">
-            <button type="button" class="btn-primary" onclick="analyzeCaseWithAI()">Analyze Case</button>
-            <button type="button" class="btn-secondary" onclick="clearAIReview()">Clear Review</button>
-          </div>
-          <div id="aiStatus" class="status-box"></div>
-        </div>
-        <div>
-          <div class="preview-label">AI Case Breakdown</div>
-          <div id="aiCaseOutput"><span class="empty-preview">Upload files, add notes if needed, then click Analyze Case.</span></div>
-          <div class="btn-row">
-            <button type="button" class="btn-copy" onclick="copyAIReview()">Copy Case Breakdown</button>
-          </div>
-        </div>
-      </div>
-    </section>
 
   </div>
 
