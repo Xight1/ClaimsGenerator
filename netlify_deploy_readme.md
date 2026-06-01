@@ -4,33 +4,35 @@ This version includes the API based AI Case Review section.
 
 ## Required environment variable
 
-Add the following environment variable in Netlify:
+Add this in Netlify before testing the AI section:
 
-```text
+```
 OPENAI_API_KEY
 ```
 
-Optional:
+Optional model override:
 
-```text
+```
 OPENAI_MODEL
 ```
 
-If `OPENAI_MODEL` is not set, the function uses `gpt-4.1-mini` by default.
+Default model: `gpt-4.1-mini`
 
-## Netlify deployment
+## Important deployment note
 
-Deploy this folder through GitHub connected to Netlify or through the Netlify CLI.
+The AI Case Review section requires the Netlify Function located at:
 
-Expected structure:
-
-```text
-index.html
-netlify.toml
-netlify_deploy_readme.md
+```
 netlify/functions/analyze-case.js
 ```
 
-The AI Case Review section will not work if the Netlify function is not deployed.
+For the function to work, deploy through a connected GitHub repository or the Netlify CLI. A basic drag and drop static deploy may publish `index.html` but not activate the serverless function.
 
-If the app shows a JSON or HTML parsing error, verify that `/.netlify/functions/analyze-case` is active.
+## Expected file structure
+
+```
+index.html
+netlify.toml
+netlify/functions/analyze-case.js
+netlify_deploy_readme.md
+```
