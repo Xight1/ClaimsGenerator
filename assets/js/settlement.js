@@ -60,6 +60,7 @@ function copySettlementStatement() {
   const statement = document.getElementById("settlementStatement").textContent;
   navigator.clipboard.writeText(statement).then(() => {
     const feedback = document.getElementById("settlementCopyFeedback");
+    if (!feedback) return;
     feedback.classList.add("show");
     setTimeout(() => feedback.classList.remove("show"), 1400);
   });
