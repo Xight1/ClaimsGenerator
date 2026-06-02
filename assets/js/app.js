@@ -130,6 +130,8 @@ function restorePreserved() {
   });
 }
 
+const formCache = new Map();
+
 function renderForm(options = {}) {
   const shouldApplyDefaults = options.applyDefaults !== false;
   const type = $('claimType').value;
@@ -139,11 +141,26 @@ function renderForm(options = {}) {
   if (!fields[type]) return;
 
   savePreserved();
-  formContainer.textContent = '';
   senderSection.style.display = ['payment', 'followup'].includes(type) ? 'none' : 'block';
+
+  if (!formCache.has(type)) {
+    const scratch = document.createElement('div');
+    scratch.appendChild(buildTemplateCue(type));
+    fields[type].forEach((field) => buildField(field, scratch));
+    formCache.set(type, Array.from(scratch.childNodes));
+  }
+
+  const nodes = formCache.get(type);
+  nodes.forEach((node) => {
+    if (!node.querySelectorAll) return;
+    node.querySelectorAll('input:not([type="checkbox"]), textarea').forEach((el) => { el.value = ''; });
+    node.querySelectorAll('select').forEach((el) => { el.selectedIndex = 0; });
+    node.querySelectorAll('input[type="checkbox"]').forEach((el) => { el.checked = false; });
+  });
+
+  formContainer.replaceChildren(...nodes);
   clearValidation();
-  formContainer.appendChild(buildTemplateCue(type));
-  fields[type].forEach((field) => buildField(field, formContainer));
+
   restorePreserved();
   if (shouldApplyDefaults) applySavedDefaultsToCurrentForm();
   setDefaultDeadlineDate();
@@ -219,7 +236,8 @@ function buildSelectField(field, container) {
   const label = document.createElement('label');
   const select = document.createElement('select');
   label.setAttribute('for', field.id);
-  label.innerHTML = field.label + (field.required ? ' <span style="color:var(--red)">*</span>' : '');
+  label.textContent = field.label;
+  if (field.required) { const star = document.createElement('span'); star.style.color = 'var(--red)'; star.textContent = ' *'; label.appendChild(star); }
   select.id = field.id;
   if (field.required) select.dataset.required = 'true';
   field.options.forEach((opt) => select.add(new Option(opt.text, opt.value)));
@@ -256,7 +274,8 @@ function buildInputField(field, container) {
   const label = document.createElement('label');
   const input = field.type === 'textarea' ? document.createElement('textarea') : document.createElement('input');
   label.setAttribute('for', field.id);
-  label.innerHTML = field.label + (field.required ? ' <span style="color:var(--red)">*</span>' : '');
+  label.textContent = field.label;
+  if (field.required) { const star = document.createElement('span'); star.style.color = 'var(--red)'; star.textContent = ' *'; label.appendChild(star); }
   input.id = field.id;
   input.placeholder = field.placeholder || '';
 
@@ -292,7 +311,7 @@ function validate() {
   }
 
   document.querySelectorAll('[data-required="true"]').forEach((el) => {
-    const labelText = document.querySelector(`label[for="${el.id}"]`)?.innerText.replace('*', '').trim() || el.id;
+    const labelText = document.querySelector(`label[for="${el.id}"]`)?.textContent.replace('*', '').trim() || el.id;
     if (!el.value.trim()) {
       markError(el, `err-${el.id}`, 'This field is required.');
       errors.push(labelText);
@@ -348,18 +367,23 @@ function getGreetingWord() {
 }
 
 function getClientName() {
-  const selectedClient = $('client')?.value.trim() || 'CenterPoint Energy';
+  const selectedClient = $('client')?.value.trim();
+  if (!selectedClient) return BLANK;
   const customClient = $('customClient')?.value.trim() || '';
   return selectedClient === 'custom' ? (customClient || BLANK) : selectedClient;
 }
 
+function normalizeCurrencyString(raw) {
+  return String(raw || '').replace(/[$,\s]/g, '');
+}
+
 function isValidCurrency(raw) {
-  const normalized = String(raw || '').replace(/[$,\s]/g, '');
+  const normalized = normalizeCurrencyString(raw);
   return /^\d+(\.\d{1,2})?$/.test(normalized) && Number(normalized) > 0;
 }
 
 function formatCost(raw) {
-  const num = parseFloat(String(raw || '').replace(/[$,\s]/g, ''));
+  const num = parseFloat(normalizeCurrencyString(raw));
   if (Number.isNaN(num)) return raw || BLANK;
   return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -494,8 +518,8 @@ function updatePreview() {
   const { subject, body } = composeEmail();
   const subjectOutput = $('subjectOutput');
   const emailOutput = $('emailOutput');
-  if (subjectOutput) subjectOutput.innerText = subject;
-  if (emailOutput) emailOutput.innerText = body;
+  if (subjectOutput) subjectOutput.textContent = subject;
+  if (emailOutput) emailOutput.textContent = body;
 }
 
 function generateEmail() {
@@ -540,11 +564,15 @@ function showCopyFeedback(message) {
 }
 
 function copySubject() {
-  navigator.clipboard.writeText($('subjectOutput').innerText).then(() => showCopyFeedback('Subject copied!'));
+  navigator.clipboard.writeText($('subjectOutput').textContent)
+    .then(() => showCopyFeedback('Subject copied!'))
+    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
 }
 
 function copyEmail() {
-  navigator.clipboard.writeText($('emailOutput').innerText).then(() => showCopyFeedback('Body copied!'));
+  navigator.clipboard.writeText($('emailOutput').textContent)
+    .then(() => showCopyFeedback('Body copied!'))
+    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
 }
 
 function resetForm() {
@@ -553,7 +581,8 @@ function resetForm() {
   renderForm({ applyDefaults: false });
 }
 
-document.addEventListener('input', () => {
+document.addEventListener('input', (event) => {
+  if (!event.target.closest('#formContainer, #senderSection')) return;
   savePreserved();
   schedulePreviewUpdate();
 }, true);
@@ -571,7 +600,8 @@ document.addEventListener('blur', (event) => {
   }
 }, true);
 
-document.addEventListener('change', () => {
+document.addEventListener('change', (event) => {
+  if (!event.target.closest('#formContainer, #senderSection, #claimType')) return;
   normalizeDeadlineInput();
   savePreserved();
   schedulePreviewUpdate();

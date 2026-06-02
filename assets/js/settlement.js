@@ -4,10 +4,13 @@ function formatSettlementCurrency(value) {
   return number.toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
-function addDays(date, days) {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
+if (typeof addDays !== 'function') {
+  // eslint-disable-next-line no-inner-declarations
+  function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
 }
 
 function formatExpirationDate(date) {
@@ -58,12 +61,12 @@ function calculateSettlement() {
 
 function copySettlementStatement() {
   const statement = document.getElementById("settlementStatement").textContent;
-  navigator.clipboard.writeText(statement).then(() => {
-    const feedback = document.getElementById("settlementCopyFeedback");
-    if (!feedback) return;
-    feedback.classList.add("show");
-    setTimeout(() => feedback.classList.remove("show"), 1400);
-  });
+  navigator.clipboard.writeText(statement)
+    .then(() => {
+      const feedback = document.getElementById("settlementCopyFeedback");
+      if (!feedback) return;
+      feedback.classList.add("show");
+      setTimeout(() => feedback.classList.remove("show"), 1400);
+    })
+    .catch(() => {});
 }
-
-document.addEventListener("DOMContentLoaded", calculateSettlement);
