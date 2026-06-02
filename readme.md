@@ -1,4 +1,4 @@
-# Claims Generator v2026-06-01 beta 7
+# Claims Generator v2026-06-01 beta 26
 
 This version includes the API based AI Case Review section.
 
@@ -39,7 +39,7 @@ netlify_deploy_readme.md
 
 ## File structure note
 
-As of beta 7, the app is split into smaller files under `assets/` so future GitHub updates can be pushed without replacing one large `index.html` file.
+As of beta 26, the app is split into smaller files under `assets/` so future GitHub updates can be pushed without replacing one large `index.html` file.
 
 ---
 
