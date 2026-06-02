@@ -6,8 +6,9 @@
   <title>Claim Generator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/topbar.css" />
 </head>
 <body>
   <div class="topbar-shell">
@@ -32,7 +33,7 @@
       <header class="app-header app-header-centered">
         <div class="header-title-block">
           <h1>Claims Generator</h1>
-          <span class="app-version" id="appVersion"></span>
+          <span class="app-version" id="appVersion">Claims Generator v2026-06-01 beta 25</span>
         </div>
         <div class="template-cue header-template-cue" id="selectedTemplateIndicator">
           <span>Selected Template</span>
@@ -53,7 +54,7 @@
           </select>
 
           <div class="section" id="senderSection">
-            <label for="senderName">Your Name <span style="color:var(--red)">*</span></label>
+            <label for="senderName">Your Name <span style="color:var(--red)*">*</span></label>
             <input type="text" id="senderName" placeholder="e.g. Kevin" value="Kevin" />
             <div class="error-msg" id="err-senderName">Required</div>
           </div>
@@ -92,7 +93,6 @@
 
   <script src="assets/js/config.js" defer></script>
   <script src="assets/js/app.js" defer></script>
-  <script src="assets/js/clipboard.js" defer></script>
   <script src="assets/js/performance.js" defer></script>
   <script src="assets/js/navigation.js" defer></script>
   <script src="assets/js/ui.js" defer></script>
