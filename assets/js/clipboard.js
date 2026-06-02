@@ -7,20 +7,30 @@ function escapeHtmlForClipboard(value) {
     .replace(/'/g, '&#039;');
 }
 
-function plainTextToClipboardHtml(text) {
-  const safeText = escapeHtmlForClipboard(text || '').replace(/\r\n/g, '\n');
-  const paragraphs = safeText
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.replace(/\n/g, '<br>'))
-    .map((paragraph) => `<p style="margin:0 0 12px 0; line-height:1.45;">${paragraph}</p>`)
-    .join('');
+function normalizeClipboardText(text) {
+  return String(text || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .trim();
+}
 
-  return `<!DOCTYPE html><html><body style="font-family: Arial, sans-serif; font-size: 14px; color: #000000;">${paragraphs}</body></html>`;
+function plainTextToClipboardHtml(text) {
+  const normalizedText = normalizeClipboardText(text);
+  const paragraphs = normalizedText.split(/\n{2,}/);
+
+  const htmlBody = paragraphs
+    .map((paragraph) => {
+      const safeParagraph = escapeHtmlForClipboard(paragraph).replace(/\n/g, '<br>');
+      return `<div style="margin:0; padding:0; line-height:1.45; font-family:Arial, sans-serif; font-size:14px; color:#000000;">${safeParagraph}</div>`;
+    })
+    .join('<div style="margin:0; padding:0; line-height:1.45;"><br></div>');
+
+  return `<!DOCTYPE html><html><body><!--StartFragment-->${htmlBody}<!--EndFragment--></body></html>`;
 }
 
 async function copyRichText(text) {
-  const plainText = String(text || '');
-  const htmlText = plainTextToClipboardHtml(plainText);
+  const plainText = normalizeClipboardText(text).replace(/\n/g, '\r\n');
+  const htmlText = plainTextToClipboardHtml(text);
 
   if (navigator.clipboard && window.ClipboardItem && navigator.clipboard.write) {
     const item = new ClipboardItem({
