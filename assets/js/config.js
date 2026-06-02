@@ -1,4 +1,4 @@
-window.CLAIMS_GENERATOR_CONFIG = { version: "Claims Generator v2026-06-01 beta 26" };
+window.CLAIMS_GENERATOR_CONFIG = { version: "Claims Generator v2026-06-02 beta 26" };
 
 (function () {
   // Simple DOM cache helper: caches commonly used elements on DOMContentLoaded
