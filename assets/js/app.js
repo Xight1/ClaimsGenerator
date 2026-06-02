@@ -62,7 +62,7 @@ const sharedFields = [
 const fields = {
   gas: [
     ...sharedFields,
-    { label: 'Incident Details', id: 'incidentDetails', type: 'textarea', rows: 5, placeholder: 'the contractor struck the gas main while performing excavation at the listed address.', required: true },
+    { label: 'Incident Details', id: 'incidentDetails', type: 'textarea', rows: 5, placeholder: 'the contractor struck the gas main while performing excavation at the listed address.', required: t[...] 
     { type: 'section-title', label: 'Attachments' },
     { label: 'Attachments', type: 'checkbox-group', options: [
       { id: 'hasLetter', text: 'Demand Letter' },
@@ -119,19 +119,14 @@ const fields = {
 function savePreserved() {
   sharedIds.forEach((id) => {
     const el = $(id);
-    if (!el) return;
-    // Preserve checkbox checked state when appropriate
-    if (el.type === 'checkbox') preserved[id] = el.checked;
-    else preserved[id] = el.value;
+    if (el) preserved[id] = el.value;
   });
 }
 
 function restorePreserved() {
   sharedIds.forEach((id) => {
     const el = $(id);
-    if (!el || preserved[id] === undefined) return;
-    if (el.type === 'checkbox') el.checked = !!preserved[id];
-    else el.value = preserved[id];
+    if (el && preserved[id] !== undefined) el.value = preserved[id];
   });
 }
 
@@ -372,7 +367,8 @@ function getGreetingWord() {
 }
 
 function getClientName() {
-  const selectedClient = $('client')?.value.trim() || 'CenterPoint Energy';
+  const selectedClient = $('client')?.value.trim();
+  if (!selectedClient) return BLANK;
   const customClient = $('customClient')?.value.trim() || '';
   return selectedClient === 'custom' ? (customClient || BLANK) : selectedClient;
 }
@@ -383,8 +379,7 @@ function normalizeCurrencyString(raw) {
 
 function isValidCurrency(raw) {
   const normalized = normalizeCurrencyString(raw);
-  // allow "123", "123.45", ".50"
-  return /^(\d+|\d*\.\d{1,2})$/.test(normalized) && Number(normalized) > 0;
+  return /^\d+(\.\d{1,2})?$/.test(normalized) && Number(normalized) > 0;
 }
 
 function formatCost(raw) {
@@ -470,51 +465,41 @@ function composeEmail() {
 
   if (type === 'payment') {
     const cost = formatCost(getValue('cost', ''));
-    return {
-      subject,
-      body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. If you need wiring instructions or have questions about payment, please contact our office.`
-    };
+    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.` };
   }
 
   if (type === 'followup') {
     const followUpRecipient = getValue('followUpRecipient', '');
     const followUpGreeting = followUpRecipient ? `Good ${greetingWord} ${followUpRecipient},` : `Good ${greetingWord},`;
-    const deadlineText = $('hasSoftDeadline')?.checked ? `\n\nIf possible, please send an update by ${getDeadlineDate()} so we can keep the claim moving forward.` : '';
-    return {
-      subject,
-      body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status, any questions you have, or the expected timing for review.${deadlineText}\n\nThank you for your attention to this matter.`
-    };
+    const deadlineText = $('hasSoftDeadline')?.checked ? `\\n\\nIf possible, please send an update by ${getDeadlineDate()} so we can keep the claim moving forward.` : '';
+    return { subject, body: `${followUpGreeting}\\n\\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status or if there is anything else needed from our side to help move this toward resolution.${deadlineText}\\n\\nI appreciate your prompt attention and look forward to your response.` };
   }
 
   if (type === 'insurance') {
     const cost = formatCost(getValue('cost', ''));
-    return {
-      subject,
-      body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}. Please advise if you have any further questions or require additional documentation. We appreciate your timely review and look forward to your response.`
-    };
+    return { subject, body: `${greetingLine}\\n\\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\\n\\nPlease advise if you have any further questions or need any additional documentation for your review.\\n\\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To: ${client}, c/o The Claims Center LLC, P.O. Box 270410, Minneapolis, MN 55427\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.` };
   }
 
   if (type === 'escalation') {
     const dueDate = getDeadlineDate();
-    return {
-      subject,
-      body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you regarding this claim. Despite multiple outreach attempts, we have not received a substantive response. Please provide an update by ${dueDate} so we may avoid further escalation. If you need additional information to respond, let me know and I will provide it promptly.`
-    };
+    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.` };
   }
 
-  // gas & streetlight default
   const cost = formatCost(getValue('cost', ''));
+  const damageStreet = getValue('damageStreet');
+  const damageCity = getValue('damageCity');
   const hasLetter = $('hasLetter')?.checked;
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-
-  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}. We are reaching out regarding damage occurring at ${getValue('damageStreet')} ${getValue('damageCity')}.`;
+  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding an open claim that our client has against you. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
 
   if (type === 'gas') {
-    body += `\n\nBased on our client's investigation, it appears that ${getValue('incidentDetails')}\n\nThe total cost of damages incurred is ${cost}.`;
+    body += `Based on our client's investigation, it appears that ${getValue('incidentDetails')}\n\n`;
+    body += `The total cost of damages incurred is ${cost}.`;
   } else {
-    body += `\n\nBased on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')}. The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')}.\n\nThe total cost of repairs incurred by ${client} is ${cost}.`;
+    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')} (attached for your reference). The submitted locate ticket was the most recent ticket filed in the area prior to the discovery of the damage by our client.\n\n`;
+    body += `The total cost of repairs incurred by ${client} is ${cost}.`;
   }
 
   body += hasLetter ? ' Please see the attached demand letter.' : ' The demand letter is still being generated by our client; once it becomes available, we will provide it to you.';
@@ -525,7 +510,7 @@ function composeEmail() {
   if (hasTicket) attachments.push('locate ticket');
   if (attachments.length) body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
 
-  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}. If paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check.`;
+  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check.`;
   return { subject, body };
 }
 
@@ -576,6 +561,18 @@ function showCopyFeedback(message) {
   fb.textContent = message;
   fb.classList.add('show');
   setTimeout(() => fb.classList.remove('show'), 2500);
+}
+
+function copySubject() {
+  navigator.clipboard.writeText($('subjectOutput').textContent)
+    .then(() => showCopyFeedback('Subject copied!'))
+    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
+}
+
+function copyEmail() {
+  navigator.clipboard.writeText($('emailOutput').textContent)
+    .then(() => showCopyFeedback('Body copied!'))
+    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
 }
 
 function resetForm() {
