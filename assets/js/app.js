@@ -119,14 +119,19 @@ const fields = {
 function savePreserved() {
   sharedIds.forEach((id) => {
     const el = $(id);
-    if (el) preserved[id] = el.value;
+    if (!el) return;
+    // Preserve checkbox checked state when appropriate
+    if (el.type === 'checkbox') preserved[id] = el.checked;
+    else preserved[id] = el.value;
   });
 }
 
 function restorePreserved() {
   sharedIds.forEach((id) => {
     const el = $(id);
-    if (el && preserved[id] !== undefined) el.value = preserved[id];
+    if (!el || preserved[id] === undefined) return;
+    if (el.type === 'checkbox') el.checked = !!preserved[id];
+    else el.value = preserved[id];
   });
 }
 
@@ -379,7 +384,8 @@ function normalizeCurrencyString(raw) {
 
 function isValidCurrency(raw) {
   const normalized = normalizeCurrencyString(raw);
-  return /^\d+(\.\d{1,2})?$/.test(normalized) && Number(normalized) > 0;
+  // allow "123", "123.45", ".50"
+  return /^(\d+|\d*\.\d{1,2})$/.test(normalized) && Number(normalized) > 0;
 }
 
 function formatCost(raw) {
@@ -465,24 +471,24 @@ function composeEmail() {
 
   if (type === 'payment') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.` };
+    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # [...]` };
   }
 
   if (type === 'followup') {
     const followUpRecipient = getValue('followUpRecipient', '');
     const followUpGreeting = followUpRecipient ? `Good ${greetingWord} ${followUpRecipient},` : `Good ${greetingWord},`;
     const deadlineText = $('hasSoftDeadline')?.checked ? `\n\nIf possible, please send an update by ${getDeadlineDate()} so we can keep the claim moving forward.` : '';
-    return { subject, body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status or if there is anything else needed from our side to help move this toward resolution.${deadlineText}\n\nI appreciate your prompt attention and look forward to your response.` };
+    return { subject, body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current sta[...]${deadlineText}` };
   }
 
   if (type === 'insurance') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To: ${client}, c/o The Claims Center LLC, P.O. Box 270410, Minneapolis, MN 55427\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.` };
+    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any fur[...]` };
   }
 
   if (type === 'escalation') {
     const dueDate = getDeadlineDate();
-    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.` };
+    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despi[...]` };
   }
 
   const cost = formatCost(getValue('cost', ''));
@@ -492,13 +498,13 @@ function composeEmail() {
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding an open claim that our client has against you. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
+  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding [...]`;
 
   if (type === 'gas') {
     body += `Based on our client's investigation, it appears that ${getValue('incidentDetails')}\n\n`;
     body += `The total cost of damages incurred is ${cost}.`;
   } else {
-    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')} (attached for your reference). The submitted locate ticket was the most recent ticket filed in the area prior to the discovery of the damage by our client.\n\n`;
+    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')}.\n`;
     body += `The total cost of repairs incurred by ${client} is ${cost}.`;
   }
 
@@ -510,7 +516,7 @@ function composeEmail() {
   if (hasTicket) attachments.push('locate ticket');
   if (attachments.length) body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
 
-  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.\n\nWe have a limited window to resolve this claim. If no meaningful progress is made toward a resolution within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions.`;
+  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on[...]`;
   return { subject, body };
 }
 
@@ -553,26 +559,6 @@ function saveDefaults() {
     customClient: $('customClient')?.value.trim() || ''
   };
   localStorage.setItem(DEFAULTS_KEY, JSON.stringify(defaults));
-}
-
-function showCopyFeedback(message) {
-  const fb = $('copyFeedback');
-  if (!fb) return;
-  fb.textContent = message;
-  fb.classList.add('show');
-  setTimeout(() => fb.classList.remove('show'), 2500);
-}
-
-function copySubject() {
-  navigator.clipboard.writeText($('subjectOutput').textContent)
-    .then(() => showCopyFeedback('Subject copied!'))
-    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
-}
-
-function copyEmail() {
-  navigator.clipboard.writeText($('emailOutput').textContent)
-    .then(() => showCopyFeedback('Body copied!'))
-    .catch(() => showCopyFeedback('Copy failed — please copy manually.'));
 }
 
 function resetForm() {
