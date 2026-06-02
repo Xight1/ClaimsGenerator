@@ -1,12 +1,3 @@
-function showToast(message) {
-  const toast = document.getElementById('toastNotification');
-  if (!toast) return;
-  toast.textContent = message;
-  toast.classList.add('show');
-  window.clearTimeout(window.__claimsToastTimer);
-  window.__claimsToastTimer = window.setTimeout(() => toast.classList.remove('show'), 1800);
-}
-
 function setClaimTypeFromShortcut(type) {
   const claimType = document.getElementById('claimType');
   const settlementClaimType = document.getElementById('settlementClaimType');

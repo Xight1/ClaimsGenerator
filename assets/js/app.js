@@ -130,6 +130,8 @@ function restorePreserved() {
   });
 }
 
+const formCache = new Map();
+
 function renderForm(options = {}) {
   const shouldApplyDefaults = options.applyDefaults !== false;
   const type = $('claimType').value;
@@ -139,11 +141,26 @@ function renderForm(options = {}) {
   if (!fields[type]) return;
 
   savePreserved();
-  formContainer.textContent = '';
   senderSection.style.display = ['payment', 'followup'].includes(type) ? 'none' : 'block';
+
+  if (!formCache.has(type)) {
+    const scratch = document.createElement('div');
+    scratch.appendChild(buildTemplateCue(type));
+    fields[type].forEach((field) => buildField(field, scratch));
+    formCache.set(type, Array.from(scratch.childNodes));
+  }
+
+  const nodes = formCache.get(type);
+  nodes.forEach((node) => {
+    if (!node.querySelectorAll) return;
+    node.querySelectorAll('input:not([type="checkbox"]), textarea').forEach((el) => { el.value = ''; });
+    node.querySelectorAll('select').forEach((el) => { el.selectedIndex = 0; });
+    node.querySelectorAll('input[type="checkbox"]').forEach((el) => { el.checked = false; });
+  });
+
+  formContainer.replaceChildren(...nodes);
   clearValidation();
-  formContainer.appendChild(buildTemplateCue(type));
-  fields[type].forEach((field) => buildField(field, formContainer));
+
   restorePreserved();
   if (shouldApplyDefaults) applySavedDefaultsToCurrentForm();
   setDefaultDeadlineDate();
