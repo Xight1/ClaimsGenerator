@@ -372,8 +372,7 @@ function getGreetingWord() {
 }
 
 function getClientName() {
-  const selectedClient = $('client')?.value.trim();
-  if (!selectedClient) return BLANK;
+  const selectedClient = $('client')?.value.trim() || 'CenterPoint Energy';
   const customClient = $('customClient')?.value.trim() || '';
   return selectedClient === 'custom' ? (customClient || BLANK) : selectedClient;
 }
@@ -471,41 +470,51 @@ function composeEmail() {
 
   if (type === 'payment') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # [...]` };
+    return {
+      subject,
+      body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. If you need wiring instructions or have questions about payment, please contact our office.`
+    };
   }
 
   if (type === 'followup') {
     const followUpRecipient = getValue('followUpRecipient', '');
     const followUpGreeting = followUpRecipient ? `Good ${greetingWord} ${followUpRecipient},` : `Good ${greetingWord},`;
     const deadlineText = $('hasSoftDeadline')?.checked ? `\n\nIf possible, please send an update by ${getDeadlineDate()} so we can keep the claim moving forward.` : '';
-    return { subject, body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current sta[...]${deadlineText}` };
+    return {
+      subject,
+      body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status, any questions you have, or the expected timing for review.${deadlineText}\n\nThank you for your attention to this matter.`
+    };
   }
 
   if (type === 'insurance') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any fur[...]` };
+    return {
+      subject,
+      body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}. Please advise if you have any further questions or require additional documentation. We appreciate your timely review and look forward to your response.`
+    };
   }
 
   if (type === 'escalation') {
     const dueDate = getDeadlineDate();
-    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despi[...]` };
+    return {
+      subject,
+      body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you regarding this claim. Despite multiple outreach attempts, we have not received a substantive response. Please provide an update by ${dueDate} so we may avoid further escalation. If you need additional information to respond, let me know and I will provide it promptly.`
+    };
   }
 
+  // gas & streetlight default
   const cost = formatCost(getValue('cost', ''));
-  const damageStreet = getValue('damageStreet');
-  const damageCity = getValue('damageCity');
   const hasLetter = $('hasLetter')?.checked;
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding [...]`;
+
+  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}. We are reaching out regarding damage occurring at ${getValue('damageStreet')} ${getValue('damageCity')}.`;
 
   if (type === 'gas') {
-    body += `Based on our client's investigation, it appears that ${getValue('incidentDetails')}\n\n`;
-    body += `The total cost of damages incurred is ${cost}.`;
+    body += `\n\nBased on our client's investigation, it appears that ${getValue('incidentDetails')}\n\nThe total cost of damages incurred is ${cost}.`;
   } else {
-    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')}.\n`;
-    body += `The total cost of repairs incurred by ${client} is ${cost}.`;
+    body += `\n\nBased on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')}. The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')}.\n\nThe total cost of repairs incurred by ${client} is ${cost}.`;
   }
 
   body += hasLetter ? ' Please see the attached demand letter.' : ' The demand letter is still being generated by our client; once it becomes available, we will provide it to you.';
@@ -516,7 +525,7 @@ function composeEmail() {
   if (hasTicket) attachments.push('locate ticket');
   if (attachments.length) body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
 
-  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on[...]`;
+  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}. If paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check.`;
   return { subject, body };
 }
 
@@ -559,6 +568,14 @@ function saveDefaults() {
     customClient: $('customClient')?.value.trim() || ''
   };
   localStorage.setItem(DEFAULTS_KEY, JSON.stringify(defaults));
+}
+
+function showCopyFeedback(message) {
+  const fb = $('copyFeedback');
+  if (!fb) return;
+  fb.textContent = message;
+  fb.classList.add('show');
+  setTimeout(() => fb.classList.remove('show'), 2500);
 }
 
 function resetForm() {
