@@ -60,14 +60,17 @@ function calculateSettlement() {
 }
 
 function copySettlementStatement() {
-  const statement = document.getElementById("settlementStatement")?.textContent || "";
-  const copyAction = typeof copyRichText === "function" ? copyRichText(statement) : navigator.clipboard.writeText(statement);
+  if (typeof copyRenderedElementById === "function") {
+    copyRenderedElementById("settlementStatement", "settlementCopyFeedback", "Settlement copied!");
+    return;
+  }
 
-  copyAction
+  const statement = document.getElementById("settlementStatement")?.innerText || document.getElementById("settlementStatement")?.textContent || "";
+  navigator.clipboard.writeText(statement)
     .then(() => {
       const feedback = document.getElementById("settlementCopyFeedback");
       if (!feedback) return;
-      feedback.textContent = "Settlement copied with formatting!";
+      feedback.textContent = "Settlement copied as plain text.";
       feedback.classList.add("show");
       setTimeout(() => feedback.classList.remove("show"), 1800);
     })
