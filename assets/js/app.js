@@ -486,17 +486,7 @@ function composeEmail() {
   if (hasPhotos) attachments.push('damage photos');
   if (hasReport) attachments.push('damage report');
   if (hasTicket) attachments.push('locate ticket');
-  if (attachments.length) {
-    let attachmentsText = '';
-    if (attachments.length === 1) {
-      attachmentsText = attachments[0];
-    } else if (attachments.length === 2) {
-      attachmentsText = `${attachments[0]} and ${attachments[1]}`;
-    } else {
-      attachmentsText = `${attachments.slice(0, -1).join(', ')}, and ${attachments[attachments.length - 1]}`;
-    }
-    body += `\n\nI have attached ${attachmentsText} for your review.`;
-  }
+  if (attachments.length) body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
 
   body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on[...]`;
   return { subject, body };
