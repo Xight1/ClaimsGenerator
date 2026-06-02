@@ -441,24 +441,25 @@ function composeEmail() {
 
   if (type === 'payment') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.` };
+    return { subject, body: `To resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # [...]
+` };
   }
 
   if (type === 'followup') {
     const followUpRecipient = getValue('followUpRecipient', '');
     const followUpGreeting = followUpRecipient ? `Good ${greetingWord} ${followUpRecipient},` : `Good ${greetingWord},`;
     const deadlineText = $('hasSoftDeadline')?.checked ? `\n\nIf possible, please send an update by ${getDeadlineDate()} so we can keep the claim moving forward.` : '';
-    return { subject, body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current status or if there is anything else needed from our side to help move this toward resolution.${deadlineText}\n\nI appreciate your prompt attention and look forward to your response.` };
+    return { subject, body: `${followUpGreeting}\n\nI wanted to follow up on my previous message and see if you had a chance to review the information provided. Please let me know the current sta[...]${deadlineText}` };
   }
 
   if (type === 'insurance') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To: ${client}, c/o The Claims Center LLC, P.O. Box 270410, Minneapolis, MN 55427\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.` };
+    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any fur[...]` };
   }
 
   if (type === 'escalation') {
     const dueDate = getDeadlineDate();
-    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.` };
+    return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despi[...]` };
   }
 
   const cost = formatCost(getValue('cost', ''));
@@ -468,13 +469,14 @@ function composeEmail() {
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding an open claim that our client has against you. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
+  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding [...]
+`;
 
   if (type === 'gas') {
     body += `Based on our client's investigation, it appears that ${getValue('incidentDetails')}\n\n`;
     body += `The total cost of damages incurred is ${cost}.`;
   } else {
-    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')} (attached for your reference). The submitted locate ticket was the most recent ticket filed in the area prior to the discovery of the damage by our client.\n\n`;
+    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket') || BLANK}.\n\n`;
     body += `The total cost of repairs incurred by ${client} is ${cost}.`;
   }
 
@@ -484,9 +486,19 @@ function composeEmail() {
   if (hasPhotos) attachments.push('damage photos');
   if (hasReport) attachments.push('damage report');
   if (hasTicket) attachments.push('locate ticket');
-  if (attachments.length) body += `\n\nI have attached ${attachments.join(', ')} for your review.`;
+  if (attachments.length) {
+    let attachmentsText = '';
+    if (attachments.length === 1) {
+      attachmentsText = attachments[0];
+    } else if (attachments.length === 2) {
+      attachmentsText = `${attachments[0]} and ${attachments[1]}`;
+    } else {
+      attachmentsText = `${attachments.slice(0, -1).join(', ')}, and ${attachments[attachments.length - 1]}`;
+    }
+    body += `\n\nI have attached ${attachmentsText} for your review.`;
+  }
 
-  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.\n\nWe have a limited window to resolve this claim. If no meaningful progress is made toward a resolution within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions.`;
+  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on[...]`;
   return { subject, body };
 }
 
