@@ -286,7 +286,6 @@ button:hover { transform: translateY(-1px); }
   margin-top: 1rem;
 }
 
-#outputSection { display: block; }
 
 .subject-box {
   background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);

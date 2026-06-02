@@ -33,7 +33,7 @@ function applyTheme(theme) {
   if (toggle) {
     toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
     toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-    toggle.innerHTML = isDark ? '<span aria-hidden="true">☀</span>' : '<span aria-hidden="true">☀</span>';
+    toggle.innerHTML = isDark ? '<span aria-hidden="true">🌙</span>' : '<span aria-hidden="true">☀</span>';
   }
 }
 
@@ -41,7 +41,6 @@ function toggleDarkMode() {
   const currentTheme = document.documentElement.getAttribute('data-theme') || getPreferredTheme();
   const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
   localStorage.setItem('claimsGeneratorTheme', nextTheme);
-  localStorage.setItem('claimsGeneratorDarkMode', nextTheme === 'dark' ? 'true' : 'false');
   applyTheme(nextTheme);
 }
 
