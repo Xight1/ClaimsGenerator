@@ -1,52 +1,24 @@
-function escapeHtmlForClipboard(value) {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+function selectAndCopyRenderedElement(element) {
+  if (!element) return false;
 
-function normalizeClipboardText(text) {
-  return String(text || '')
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .trim();
-}
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  selection.removeAllRanges();
+  selection.addRange(range);
 
-function buildClipboardParts(text) {
-  const normalizedText = normalizeClipboardText(text);
-  const paragraphs = normalizedText.split(/\n{2,}/).filter(Boolean);
-
-  const plainText = paragraphs
-    .map((paragraph) => paragraph.replace(/\n/g, '\r\n'))
-    .join('\r\n\r\n');
-
-  const htmlBody = paragraphs
-    .map((paragraph) => {
-      const safeLines = paragraph.split('\n').map(escapeHtmlForClipboard).join('<br>');
-      return `<p style="margin:0 0 16px 0; padding:0; font-family:Arial, sans-serif; font-size:14px; line-height:1.45; color:#000000; mso-margin-top-alt:0in; mso-margin-bottom-alt:12pt;">${safeLines}</p>`;
-    })
-    .join('');
-
-  const htmlText = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0; padding:0; font-family:Arial, sans-serif; font-size:14px; line-height:1.45; color:#000000;"><!--StartFragment-->${htmlBody}<!--EndFragment--></body></html>`;
-
-  return { plainText, htmlText };
-}
-
-async function copyRichText(text) {
-  const { plainText, htmlText } = buildClipboardParts(text);
-
-  if (navigator.clipboard && window.ClipboardItem && navigator.clipboard.write) {
-    const item = new ClipboardItem({
-      'text/html': new Blob([htmlText], { type: 'text/html' }),
-      'text/plain': new Blob([plainText], { type: 'text/plain' })
-    });
-    await navigator.clipboard.write([item]);
-    return;
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } finally {
+    selection.removeAllRanges();
   }
 
-  await navigator.clipboard.writeText(plainText);
+  return copied;
+}
+
+function fallbackCopyPlainText(text) {
+  return navigator.clipboard.writeText(String(text || ''));
 }
 
 function showFeedbackById(feedbackId, message, duration = 2500) {
@@ -64,14 +36,30 @@ window.copySubject = function copySubjectRich() {
     .catch(() => showFeedbackById('copyFeedback', 'Copy failed — please copy manually.'));
 };
 
-window.copyEmail = function copyEmailRich() {
-  let body = '';
-  if (typeof composeEmail === 'function') {
-    body = composeEmail()?.body || '';
-  }
-  if (!body) body = document.getElementById('emailOutput')?.innerText || document.getElementById('emailOutput')?.textContent || '';
+window.copyEmail = function copyEmailRenderedPreview() {
+  const outputSection = document.getElementById('outputSection');
+  const emailOutput = document.getElementById('emailOutput');
+  const target = outputSection || emailOutput;
 
-  copyRichText(body)
-    .then(() => showFeedbackById('copyFeedback', 'Body copied with formatting!'))
+  if (selectAndCopyRenderedElement(target)) {
+    showFeedbackById('copyFeedback', 'Body copied!');
+    return;
+  }
+
+  fallbackCopyPlainText(emailOutput?.innerText || emailOutput?.textContent || '')
+    .then(() => showFeedbackById('copyFeedback', 'Body copied as plain text.'))
     .catch(() => showFeedbackById('copyFeedback', 'Copy failed — please copy manually.'));
+};
+
+window.copyRenderedElementById = function copyRenderedElementById(elementId, feedbackId, successMessage) {
+  const target = document.getElementById(elementId);
+
+  if (selectAndCopyRenderedElement(target)) {
+    showFeedbackById(feedbackId, successMessage || 'Copied!');
+    return Promise.resolve();
+  }
+
+  return fallbackCopyPlainText(target?.innerText || target?.textContent || '')
+    .then(() => showFeedbackById(feedbackId, 'Copied as plain text.'))
+    .catch(() => showFeedbackById(feedbackId, 'Copy failed — please copy manually.'));
 };
