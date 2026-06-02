@@ -1,6 +1,6 @@
 function getSelectedClaimType() {
-  const claimType = document.getElementById('claimType');
-  const settlementClaimType = document.getElementById('settlementClaimType');
+  const claimType = (typeof getCached === 'function' ? getCached('claimType') : document.getElementById('claimType'));
+  const settlementClaimType = (typeof getCached === 'function' ? getCached('settlementClaimType') : document.getElementById('settlementClaimType'));
   if (document.activeElement === settlementClaimType && settlementClaimType) {
     return settlementClaimType.value;
   }
@@ -8,20 +8,20 @@ function getSelectedClaimType() {
 }
 
 function syncClaimTypeSelects(value) {
-  const claimType = document.getElementById('claimType');
-  const settlementClaimType = document.getElementById('settlementClaimType');
+  const claimType = (typeof getCached === 'function' ? getCached('claimType') : document.getElementById('claimType'));
+  const settlementClaimType = (typeof getCached === 'function' ? getCached('settlementClaimType') : document.getElementById('settlementClaimType'));
   if (claimType) claimType.value = value;
   if (settlementClaimType) settlementClaimType.value = value;
 }
 
 function getTemplateLabel(value) {
-  const claimType = document.getElementById('claimType');
+  const claimType = (typeof getCached === 'function' ? getCached('claimType') : document.getElementById('claimType'));
   const option = claimType?.querySelector(`option[value="${value}"]`);
   return option?.textContent || 'Gas Claim';
 }
 
 function updateSelectedTemplateIndicator(value) {
-  const indicator = document.getElementById('selectedTemplateIndicator');
+  const indicator = (typeof getCached === 'function' ? getCached('selectedTemplateIndicator') : document.getElementById('selectedTemplateIndicator'));
   if (!indicator) return;
   const selectedLabel = getTemplateLabel(value);
   indicator.innerHTML = `<span>Selected Template</span><strong>${selectedLabel}</strong>`;
@@ -38,10 +38,10 @@ function updateActiveTaskbar(value) {
 }
 
 function ensureSettlementPanel() {
-  const existing = document.getElementById('settlementCalculatorPanel');
+  const existing = (typeof getCached === 'function' ? getCached('settlementCalculatorPanel') : document.getElementById('settlementCalculatorPanel'));
   if (existing) return existing;
 
-  const mount = document.getElementById('settlementMount');
+  const mount = (typeof getCached === 'function' ? getCached('settlementMount') : document.getElementById('settlementMount'));
   if (!mount) return null;
 
   const panel = document.createElement('section');
@@ -104,8 +104,8 @@ function ensureSettlementScriptLoaded() {
 
 function handleClaimTypeChange() {
   const selectedType = getSelectedClaimType();
-  const claimWorkspace = document.getElementById('claimWorkspace');
-  const settlementPanel = selectedType === 'settlement' ? ensureSettlementPanel() : document.getElementById('settlementCalculatorPanel');
+  const claimWorkspace = (typeof getCached === 'function' ? getCached('claimWorkspace') : document.getElementById('claimWorkspace'));
+  const settlementPanel = selectedType === 'settlement' ? ensureSettlementPanel() : (typeof getCached === 'function' ? getCached('settlementCalculatorPanel') : document.getElementById('settlementCalculatorPanel'));
 
   syncClaimTypeSelects(selectedType);
   updateSelectedTemplateIndicator(selectedType);
@@ -126,7 +126,7 @@ function handleClaimTypeChange() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const claimType = document.getElementById('claimType');
+  const claimType = (typeof getCached === 'function' ? getCached('claimType') : document.getElementById('claimType'));
   const initialType = claimType?.value || 'gas';
   updateSelectedTemplateIndicator(initialType);
   updateActiveTaskbar(initialType);
