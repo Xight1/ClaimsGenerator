@@ -60,13 +60,22 @@ function calculateSettlement() {
 }
 
 function copySettlementStatement() {
-  const statement = document.getElementById("settlementStatement").textContent;
-  navigator.clipboard.writeText(statement)
+  const statement = document.getElementById("settlementStatement")?.textContent || "";
+  const copyAction = typeof copyRichText === "function" ? copyRichText(statement) : navigator.clipboard.writeText(statement);
+
+  copyAction
     .then(() => {
       const feedback = document.getElementById("settlementCopyFeedback");
       if (!feedback) return;
+      feedback.textContent = "Settlement copied with formatting!";
       feedback.classList.add("show");
-      setTimeout(() => feedback.classList.remove("show"), 1400);
+      setTimeout(() => feedback.classList.remove("show"), 1800);
     })
-    .catch(() => {});
+    .catch(() => {
+      const feedback = document.getElementById("settlementCopyFeedback");
+      if (!feedback) return;
+      feedback.textContent = "Copy failed — please copy manually.";
+      feedback.classList.add("show");
+      setTimeout(() => feedback.classList.remove("show"), 1800);
+    });
 }
