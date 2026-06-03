@@ -233,6 +233,44 @@ textarea { resize: vertical; }
   margin: 1.35rem 0;
 }
 
+.form-progress {
+  display: none;
+  margin-top: 1.1rem;
+}
+
+.form-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.form-progress-track {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.form-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.form-progress-bar.complete {
+  background: linear-gradient(90deg, #16a34a, #15803d);
+}
+
+body.dark-mode .form-progress-track {
+  background: #1f2937;
+}
+
 .btn-row {
   display: flex;
   gap: 0.65rem;

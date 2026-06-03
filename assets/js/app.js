@@ -7,6 +7,7 @@ function schedulePreviewUpdate() {
   previewFrame = requestAnimationFrame(() => {
     previewFrame = 0;
     updatePreview();
+    updateProgressBar();
   });
 }
 
@@ -116,7 +117,13 @@ const fields = {
   ]
 };
 
-function savePreserved() {
+function savePreserved(id) {
+  if (id) {
+    if (!sharedIds.includes(id)) return;
+    const el = $(id);
+    if (el) preserved[id] = el.value;
+    return;
+  }
   sharedIds.forEach((id) => {
     const el = $(id);
     if (el) preserved[id] = el.value;
@@ -144,13 +151,16 @@ function renderForm(options = {}) {
   formContainer.textContent = '';
   senderSection.style.display = ['payment', 'followup'].includes(type) ? 'none' : 'block';
   clearValidation();
-  formContainer.appendChild(buildTemplateCue(type));
-  fields[type].forEach((field) => buildField(field, formContainer));
+  const fragment = document.createDocumentFragment();
+  fragment.appendChild(buildTemplateCue(type));
+  fields[type].forEach((field) => buildField(field, fragment));
+  formContainer.appendChild(fragment);
   if (shouldPreserveValues) restorePreserved();
   if (shouldApplyDefaults) applySavedDefaultsToCurrentForm();
   if (shouldSetDefaultDeadline) setDefaultDeadlineDate();
   normalizeDeadlineInput();
   updatePreview();
+  updateProgressBar();
 }
 
 function getTemplateName(type) {
@@ -503,6 +513,47 @@ function updatePreview() {
   const emailOutput = $('emailOutput');
   if (subjectOutput) subjectOutput.innerText = subject;
   if (emailOutput) emailOutput.innerText = body;
+}
+
+function updateProgressBar() {
+  const progress = $('formProgress');
+  if (!progress) return;
+
+  const type = $('claimType').value;
+  if (!['gas', 'streetlight'].includes(type)) {
+    progress.style.display = 'none';
+    return;
+  }
+
+  let total = 0;
+  let filled = 0;
+
+  const sender = $('senderName');
+  if (sender) {
+    total++;
+    if (sender.value.trim()) filled++;
+  }
+
+  document.querySelectorAll('[data-required="true"]').forEach((el) => {
+    total++;
+    const val = el.value.trim();
+    if (val && (el.id !== 'cost' || isValidCurrency(val))) filled++;
+  });
+
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  const bar = $('formProgressBar');
+  const text = $('formProgressText');
+  const isComplete = filled === total && total > 0;
+
+  if (bar) {
+    bar.style.width = `${pct}%`;
+    bar.classList.toggle('complete', isComplete);
+  }
+  if (text) {
+    text.textContent = `${filled} of ${total} required fields complete`;
+  }
+
+  progress.style.display = 'block';
 }
 
 function generateEmail() {
