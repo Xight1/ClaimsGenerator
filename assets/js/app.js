@@ -77,10 +77,10 @@ const fields = {
     { label: 'Incident Description', id: 'incidentDescription', type: 'textarea', rows: 5, placeholder: 'a utility installation project at the listed address.', required: true },
     { type: 'section-title', label: 'Attachments' },
     { label: 'Attachments', type: 'checkbox-group', options: [
+      { id: 'hasLetter', text: 'Demand Letter' },
       { id: 'hasPhotos', text: 'Damage Photos' },
       { id: 'hasReport', text: 'Damage Report' },
-      { id: 'hasTicket', text: 'Locate Ticket' },
-      { id: 'hasLetter', text: 'Demand Letter' }
+      { id: 'hasTicket', text: 'Locate Ticket' }
     ] }
   ],
   escalation: [
