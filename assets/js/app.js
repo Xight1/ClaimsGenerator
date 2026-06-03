@@ -133,19 +133,20 @@ function restorePreserved() {
 function renderForm(options = {}) {
   const shouldApplyDefaults = options.applyDefaults !== false;
   const shouldSetDefaultDeadline = options.setDefaultDeadline !== false;
+  const shouldPreserveValues = options.preserveValues !== false;
   const type = $('claimType').value;
   const formContainer = $('formContainer');
   const senderSection = $('senderSection');
 
   if (!fields[type]) return;
 
-  savePreserved();
+  if (shouldPreserveValues) savePreserved();
   formContainer.textContent = '';
   senderSection.style.display = ['payment', 'followup'].includes(type) ? 'none' : 'block';
   clearValidation();
   formContainer.appendChild(buildTemplateCue(type));
   fields[type].forEach((field) => buildField(field, formContainer));
-  restorePreserved();
+  if (shouldPreserveValues) restorePreserved();
   if (shouldApplyDefaults) applySavedDefaultsToCurrentForm();
   if (shouldSetDefaultDeadline) setDefaultDeadlineDate();
   normalizeDeadlineInput();
@@ -556,7 +557,7 @@ function copyEmail() {
 function resetForm() {
   $('senderName').value = '';
   Object.keys(preserved).forEach((key) => delete preserved[key]);
-  renderForm({ applyDefaults: false, setDefaultDeadline: false });
+  renderForm({ applyDefaults: false, setDefaultDeadline: false, preserveValues: false });
 }
 
 document.addEventListener('input', () => {
