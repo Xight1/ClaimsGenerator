@@ -132,6 +132,7 @@ function restorePreserved() {
 
 function renderForm(options = {}) {
   const shouldApplyDefaults = options.applyDefaults !== false;
+  const shouldSetDefaultDeadline = options.setDefaultDeadline !== false;
   const type = $('claimType').value;
   const formContainer = $('formContainer');
   const senderSection = $('senderSection');
@@ -146,7 +147,7 @@ function renderForm(options = {}) {
   fields[type].forEach((field) => buildField(field, formContainer));
   restorePreserved();
   if (shouldApplyDefaults) applySavedDefaultsToCurrentForm();
-  setDefaultDeadlineDate();
+  if (shouldSetDefaultDeadline) setDefaultDeadlineDate();
   normalizeDeadlineInput();
   updatePreview();
 }
@@ -553,9 +554,9 @@ function copyEmail() {
 }
 
 function resetForm() {
-  $('senderName').value = DEFAULT_SENDER_NAME;
+  $('senderName').value = '';
   Object.keys(preserved).forEach((key) => delete preserved[key]);
-  renderForm({ applyDefaults: false });
+  renderForm({ applyDefaults: false, setDefaultDeadline: false });
 }
 
 document.addEventListener('input', () => {

@@ -66,6 +66,9 @@ function ensureSettlementPanel() {
         Include 7 day expiration language
       </label>
       <div id="settlementWarning" class="status-box error" style="display:none;"></div>
+      <div class="btn-row">
+        <button type="button" class="btn-danger" onclick="resetSettlementCalculator()">Reset</button>
+      </div>
     </section>
 
     <section class="preview-panel settlement-preview-panel">

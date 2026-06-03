@@ -56,6 +56,27 @@ function calculateSettlement() {
   statementOutput.textContent = statement;
 }
 
+function resetSettlementCalculator() {
+  const totalCostInput = document.getElementById("settlementTotalCost");
+  const reductionInput = document.getElementById("settlementReductionPercent");
+  const includeExpirationInput = document.getElementById("includeSettlementExpiration");
+  const reductionAmountOutput = document.getElementById("settlementReductionAmount");
+  const offerAmountOutput = document.getElementById("settlementOfferAmount");
+  const warningOutput = document.getElementById("settlementWarning");
+  const statementOutput = document.getElementById("settlementStatement");
+
+  if (totalCostInput) totalCostInput.value = "";
+  if (reductionInput) reductionInput.value = "";
+  if (includeExpirationInput) includeExpirationInput.checked = false;
+  if (reductionAmountOutput) reductionAmountOutput.textContent = "$0.00";
+  if (offerAmountOutput) offerAmountOutput.textContent = "$0.00";
+  if (warningOutput) {
+    warningOutput.textContent = "";
+    warningOutput.style.display = "none";
+  }
+  if (statementOutput) statementOutput.textContent = "Enter a total cost and percentage reduction to generate settlement language.";
+}
+
 function copySettlementStatement() {
   const statement = document.getElementById("settlementStatement").textContent;
   navigator.clipboard.writeText(statement).then(() => {
