@@ -505,6 +505,172 @@ body.dark-mode .input-suffix {
   color: #d1d5db;
 }
 
+/* ── Attachments Panel ─────────────────────────────────────────── */
+
+.attachment-panel {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.1rem;
+}
+
+.attachment-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.attachment-mode-toggle {
+  display: flex;
+  gap: 0.1rem;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem;
+}
+
+.attach-mode-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border-radius: 7px;
+  margin: 0;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.attach-mode-label:has(input:checked) {
+  background: var(--blue);
+  color: #fff;
+}
+
+.attach-mode-label input[type="radio"] {
+  display: none;
+}
+
+.attach-file-label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.45rem;
+}
+
+.attach-file-input {
+  display: block;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.attach-file-input:hover,
+.attach-file-input:focus {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  outline: none;
+}
+
+.attach-file-list {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.attach-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0.4rem 0.7rem;
+}
+
+.attach-file-item input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--blue);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.attach-file-item span {
+  word-break: break-all;
+}
+
+.attach-reply-note {
+  font-size: 0.83rem;
+  color: var(--muted);
+  background: var(--blue-soft);
+  border: 1px solid var(--blue-border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.85rem;
+  margin: 0 0 0.85rem;
+  line-height: 1.5;
+}
+
+/* dark mode */
+body.dark-mode .attachment-panel {
+  border-top-color: #334155;
+}
+
+body.dark-mode .attachment-mode-toggle {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .attach-mode-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .attach-mode-label:has(input:checked) {
+  background: var(--blue);
+  color: #fff;
+}
+
+body.dark-mode .attach-file-label { color: #e2e8f0; }
+
+body.dark-mode .attach-file-input {
+  background: #111827;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .attach-file-input:hover,
+body.dark-mode .attach-file-input:focus {
+  border-color: var(--blue);
+  background: #1e293b;
+}
+
+body.dark-mode .attach-file-item {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .attach-reply-note {
+  background: #1e3a5f;
+  border-color: #2563eb;
+  color: #93c5fd;
+}
+
 @media (max-width: 900px) {
   body { padding: 1rem; }
   .app-header {

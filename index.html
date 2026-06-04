@@ -90,6 +90,41 @@
               <button type="button" class="btn-primary" onclick="copyEmail()">Copy Body</button>
               <span class="copy-feedback" id="copyFeedback">Copied!</span>
             </div>
+
+            <!-- Attachments panel -->
+            <div class="attachment-panel" id="attachmentPanel">
+              <div class="attachment-panel-header">
+                <span class="preview-label" style="margin:0">Attachments</span>
+                <div class="attachment-mode-toggle" role="group" aria-label="Email mode">
+                  <label class="attach-mode-label">
+                    <input type="radio" name="emailMode" value="new" checked onchange="handleEmailModeChange()" />
+                    New Email
+                  </label>
+                  <label class="attach-mode-label">
+                    <input type="radio" name="emailMode" value="reply" onchange="handleEmailModeChange()" />
+                    Reply
+                  </label>
+                </div>
+              </div>
+
+              <!-- Mode 1: New Email -->
+              <div id="attachNewEmail">
+                <label class="attach-file-label" for="newEmailFiles">Attach files</label>
+                <input type="file" id="newEmailFiles" multiple class="attach-file-input" onchange="handleNewEmailFilesChange()" />
+                <div id="newEmailFileList" class="attach-file-list" aria-live="polite"></div>
+                <div class="btn-row" style="margin-top:0.85rem">
+                  <button type="button" class="btn-primary" onclick="downloadEml()">Download .eml</button>
+                </div>
+              </div>
+
+              <!-- Mode 2: Reply -->
+              <div id="attachReply" style="display:none">
+                <p class="attach-reply-note">Reply mode: copy the body above and paste into your Outlook reply, then attach the files below.</p>
+                <label class="attach-file-label" for="replyFiles">Attach files</label>
+                <input type="file" id="replyFiles" multiple class="attach-file-input" onchange="handleReplyFilesChange()" />
+                <div id="replyFileList" class="attach-file-list" aria-live="polite"></div>
+              </div>
+            </div>
           </div>
         </section>
       </main>

@@ -353,3 +353,48 @@ The span renders `—` on load and before any calculation runs.
 
 - In `calculateSettlement()`, after `validTotal` is determined, `#settlementOriginalAmount` is set to `validTotal` formatted as USD currency via `toLocaleString('en-US', { style: 'currency', currency: 'USD' })`.
 - In `resetSettlementCalculator()`, `#settlementOriginalAmount` is reset to `"—"`, matching the initial placeholder state. Both DOM lookups are null-guarded.
+
+---
+
+## Recent Changes (2026-06-04) — Attachments panel with New Email and Reply modes
+
+### `index.html` + `assets/js/app.js` + `assets/css/styles.css` — Attachments panel added below the email preview
+
+A new `#attachmentPanel` section was added beneath the Copy Body button in the email preview area. It contains a mode toggle and two mutually exclusive sub-sections.
+
+**Mode toggle**
+
+A radio-button pair (`New Email` / `Reply`) sits in `.attachment-mode-toggle` above the panel body. `handleEmailModeChange()` reads the checked value and shows `#attachNewEmail` or `#attachReply`, hiding the other.
+
+**New Email mode (`#attachNewEmail`)**
+
+- A `<input type="file" multiple>` (`#newEmailFiles`) lets the user select any number of files. `handleNewEmailFilesChange()` renders the selected filenames in `#newEmailFileList` as `.attach-file-item` rows.
+- A `Download .eml` button calls `downloadEml()`, which assembles a complete RFC 2822 `multipart/mixed` .eml file:
+  - Subject encoded as RFC 2047 base64: `=?UTF-8?B?…?=`
+  - `To:` header populated from the `recipient` or `followUpRecipient` field when available
+  - Body part uses `Content-Transfer-Encoding: 8bit`
+  - Each attachment is read via `FileReader.readAsDataURL`, base64-extracted, chunked to 76-character lines (`chunkBase64()`), and written as a MIME part with `Content-Type` taken from `file.type` (falls back to `application/octet-stream`) and `Content-Disposition: attachment; filename="…"` sanitized by `sanitizeFilename()`
+  - Download is blocked with a feedback message if the email has not been generated yet
+  - Files that fail to read are skipped with a warning shown via `showCopyFeedback()`; successfully attached files proceed normally
+  - The resulting `Blob` is downloaded with the subject (sanitized) as the filename and the `.eml` extension
+
+**Reply mode (`#attachReply`)**
+
+- Displays an instruction note (`attach-reply-note`) telling the user to paste the generated body into their Outlook reply and attach the files manually.
+- A separate `<input type="file" multiple>` (`#replyFiles`) renders the selected filenames in `#replyFileList` via `handleReplyFilesChange()` — the same display-only pattern as New Email mode. No .eml is generated in this mode.
+
+**Helpers added to `app.js`**
+
+| Function | Purpose |
+|---|---|
+| `handleEmailModeChange()` | Switches visible sub-section based on checked radio |
+| `handleNewEmailFilesChange()` | Renders filename list for New Email file input |
+| `handleReplyFilesChange()` | Renders filename list for Reply file input |
+| `sanitizeFilename(str)` | Strips filesystem-unsafe characters, collapses whitespace to underscores, trims to 120 chars |
+| `readFileAsBase64(file)` | Returns a Promise that resolves to the raw base64 string (no data-URL prefix) |
+| `chunkBase64(b64, lineLength)` | Splits a base64 string into 76-char CRLF-terminated lines per MIME spec |
+| `downloadEml()` | Assembles and triggers download of the complete .eml file |
+
+**CSS (`assets/css/styles.css`)**
+
+New classes cover the full panel: `.attachment-panel`, `.attachment-panel-header`, `.attachment-mode-toggle`, `.attach-mode-label` (with `:has(input:checked)` highlight), `.attach-file-label`, `.attach-file-input` (dashed border, hover/focus state), `.attach-file-item`, and `.attach-reply-note`. Full dark-mode overrides are included for all new elements.

@@ -657,3 +657,154 @@ document.addEventListener('DOMContentLoaded', () => {
   $('senderName').value = getSavedDefaults().senderName || DEFAULT_SENDER_NAME;
   renderForm();
 });
+
+// ── Attachments feature ──────────────────────────────────────────────────────
+
+function handleEmailModeChange() {
+  const mode = document.querySelector('input[name="emailMode"]:checked')?.value || 'new';
+  const newSection = $('attachNewEmail');
+  const replySection = $('attachReply');
+  if (!newSection || !replySection) return;
+  newSection.style.display = mode === 'new' ? 'block' : 'none';
+  replySection.style.display = mode === 'reply' ? 'block' : 'none';
+}
+
+function handleNewEmailFilesChange() {
+  const input = $('newEmailFiles');
+  const list = $('newEmailFileList');
+  if (!input || !list) return;
+  list.innerHTML = '';
+  const files = Array.from(input.files || []);
+  files.forEach((file) => {
+    const item = document.createElement('div');
+    item.className = 'attach-file-item';
+    const icon = document.createElement('span');
+    icon.textContent = '📎'; // paperclip emoji as fallback icon
+    icon.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('span');
+    name.textContent = file.name;
+    item.append(icon, name);
+    list.appendChild(item);
+  });
+}
+
+function handleReplyFilesChange() {
+  const input = $('replyFiles');
+  const list = $('replyFileList');
+  if (!input || !list) return;
+  list.innerHTML = '';
+  const files = Array.from(input.files || []);
+  files.forEach((file) => {
+    const item = document.createElement('div');
+    item.className = 'attach-file-item';
+    const icon = document.createElement('span');
+    icon.textContent = '📎';
+    icon.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('span');
+    name.textContent = file.name;
+    item.append(icon, name);
+    list.appendChild(item);
+  });
+}
+
+function sanitizeFilename(str) {
+  return str
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
+    .replace(/\s+/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_|_$/g, '')
+    .substring(0, 120) || 'email';
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      const base64 = result.substring(result.indexOf(',') + 1);
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
+function chunkBase64(b64, lineLength = 76) {
+  const lines = [];
+  for (let i = 0; i < b64.length; i += lineLength) {
+    lines.push(b64.substring(i, i + lineLength));
+  }
+  return lines.join('\r\n');
+}
+
+async function downloadEml() {
+  const emailOutput = $('emailOutput');
+  if (emailOutput && (emailOutput.classList.contains('empty-preview') || emailOutput.innerText.startsWith('Complete the fields'))) {
+    showCopyFeedback('Generate the email first.');
+    return;
+  }
+
+  const subject = $('subjectOutput')?.innerText?.trim() || '';
+  const body = emailOutput?.innerText?.trim() || '';
+  const input = $('newEmailFiles');
+  const files = Array.from(input?.files || []);
+
+  const encodedSubject = btoa(unescape(encodeURIComponent(subject)));
+  const recipientValue = getValue('recipient', '') || getValue('followUpRecipient', '');
+
+  const boundary = 'CG_BOUNDARY_' + Date.now().toString(36).toUpperCase();
+  const CRLF = '\r\n';
+
+  let emlParts = [];
+
+  emlParts.push('MIME-Version: 1.0');
+  if (recipientValue) emlParts.push(`To: ${recipientValue}`);
+  emlParts.push(`Subject: =?UTF-8?B?${encodedSubject}?=`);
+  emlParts.push(`Content-Type: multipart/mixed; boundary="${boundary}"`);
+  emlParts.push('');
+  emlParts.push(`--${boundary}`);
+
+  emlParts.push('Content-Type: text/plain; charset=UTF-8');
+  emlParts.push('Content-Transfer-Encoding: 8bit');
+  emlParts.push('');
+  emlParts.push(body);
+  emlParts.push('');
+
+  const failedFiles = [];
+  for (const file of files) {
+    let base64Data;
+    try {
+      base64Data = await readFileAsBase64(file);
+    } catch (err) {
+      console.error(err);
+      failedFiles.push(file.name);
+      continue;
+    }
+    emlParts.push(`--${boundary}`);
+    emlParts.push(`Content-Type: ${file.type || 'application/octet-stream'}`);
+    emlParts.push(`Content-Disposition: attachment; filename="${sanitizeFilename(file.name)}"`);
+    emlParts.push('Content-Transfer-Encoding: base64');
+    emlParts.push('');
+    emlParts.push(chunkBase64(base64Data));
+    emlParts.push('');
+  }
+
+  if (failedFiles.length) {
+    showCopyFeedback('Warning: ' + failedFiles.join(', ') + ' could not be attached.');
+  }
+
+  emlParts.push(`--${boundary}--`);
+
+  const emlContent = emlParts.join(CRLF);
+  const blob = new Blob([emlContent], { type: 'message/rfc822' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = sanitizeFilename(subject) + '.eml';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 100);
+}
