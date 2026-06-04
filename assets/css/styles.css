@@ -454,12 +454,14 @@ button:hover { transform: translateY(-1px); }
 }
 
 .input-symbol-wrap input[type="text"] {
+  background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
   flex: 1 1 0;
   min-width: 0;
   outline: none;
+  padding: 0.78rem 0.55rem;
 }
 
 .input-symbol-wrap input[type="text"]:focus {
@@ -474,17 +476,16 @@ button:hover { transform: translateY(-1px); }
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;
-  padding: 0 0.65rem;
   user-select: none;
   white-space: nowrap;
 }
 
 .input-prefix {
-  padding-right: 0.35rem;
+  padding: 0.78rem 0 0.78rem 0.95rem;
 }
 
 .input-suffix {
-  padding-left: 0.35rem;
+  padding: 0.78rem 0.95rem 0.78rem 0;
 }
 
 @media (max-width: 900px) {
