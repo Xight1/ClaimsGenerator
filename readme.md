@@ -398,3 +398,70 @@ A radio-button pair (`New Email` / `Reply`) sits in `.attachment-mode-toggle` ab
 **CSS (`assets/css/styles.css`)**
 
 New classes cover the full panel: `.attachment-panel`, `.attachment-panel-header`, `.attachment-mode-toggle`, `.attach-mode-label` (with `:has(input:checked)` highlight), `.attach-file-label`, `.attach-file-input` (dashed border, hover/focus state), `.attach-file-item`, and `.attach-reply-note`. Full dark-mode overrides are included for all new elements.
+
+---
+
+## Recent Fixes (2026-06-04) — EML security, error feedback, and dark-mode polish
+
+### `assets/js/app.js` — Recipient value sanitized before use in EML `To:` header
+
+`recipientValue` is now passed through `.replace(/[\r\n]+/g, ' ')` before being written into the `To:` header. Without this, a newline embedded in the field value could inject additional MIME headers into the generated .eml file.
+
+---
+
+### `assets/js/app.js` — RFC 2822 `From:` and `Date:` headers added to .eml output
+
+Two headers required by RFC 2822 were missing from the generated .eml:
+
+- `From: Claims Generator <noreply>` is written as a static header.
+- `Date:` is populated from `new Date().toUTCString()` at download time.
+
+Both are inserted before the `To:` and `Subject:` headers.
+
+---
+
+### `assets/js/app.js` — `showCopyFeedback()` accepts an `isError` parameter
+
+`showCopyFeedback(message, isError = false)` now accepts a second argument. When `isError` is `true`, the `feedback-error` class is added to `#copyFeedback` so the toast renders in red. The class is removed alongside `show` when the timeout expires.
+
+Two call sites updated to pass `true`:
+
+- The empty-state guard in `downloadEml()` ("Generate the email first.")
+- The failed-attachment warning ("Warning: … could not be attached.")
+
+---
+
+### `assets/js/app.js` — EML body line endings normalized to CRLF
+
+Before being written into the `text/plain` MIME part, `body` is now normalized with `.replace(/\r?\n/g, '\r\n')`. This ensures the body uses CRLF line endings as required by the MIME specification, regardless of the platform line endings in the generated text.
+
+---
+
+### `assets/js/navigation.js` — Settlement script load failure shows user-visible message
+
+Previously the `.catch()` handler for `ensureSettlementScriptLoaded()` only logged to the console. It now also sets `#settlementStatement` to `'Calculator unavailable. Please reload the page.'` when the script fails to load, so the failure is visible in the UI rather than silent.
+
+---
+
+### `assets/css/styles.css` — Dark mode fix for mobile sticky action bar
+
+Inside the `@media` block for the preview actions bar, a new rule sets the background of `.preview-actions` to `rgba(11, 17, 32, 0.96)` when `body.dark-mode` is active. Previously the bar rendered white in dark mode on mobile.
+
+---
+
+### `assets/css/styles.css` — Dark mode fixes for error-state inputs and validation banner
+
+Two new rules applied under `body.dark-mode`:
+
+- `input.error`, `textarea.error`, `select.error` — background `#450a0a`, border `#991b1b`.
+- `#validationBanner` — background `#450a0a`, border `#991b1b`, text color `#fecaca`.
+
+Error states and the validation banner were previously unstyled in dark mode, inheriting the light-mode red-light background.
+
+---
+
+### `assets/css/styles.css` — `.feedback-error` CSS class added
+
+`#copyFeedback.feedback-error` sets `background: var(--red, #ef4444)`, overriding the default green toast background. This class is applied and removed programmatically by the updated `showCopyFeedback()`.
+
+---

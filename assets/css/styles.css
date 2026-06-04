@@ -185,6 +185,11 @@ input.error, textarea.error, select.error {
   background: var(--red-light);
 }
 
+body.dark-mode input.error,
+body.dark-mode textarea.error,
+body.dark-mode select.error { background: #450a0a; border-color: #991b1b; }
+body.dark-mode #validationBanner { background: #450a0a; border-color: #991b1b; color: #fecaca; }
+
 .error-msg {
   font-size: 0.8rem;
   color: var(--red);
@@ -384,6 +389,8 @@ button:hover { transform: translateY(-1px); }
 }
 
 .copy-feedback.show { opacity: 1; }
+
+#copyFeedback.feedback-error { background: var(--red, #ef4444); }
 
 .ai-review-panel {
   border-top: 1px solid var(--line);
@@ -733,4 +740,7 @@ body.dark-mode .attach-delete-btn:hover {
     border-top: 1px solid var(--line);
   }
   .preview-actions button { flex: 1 1 8rem; }
+  body.dark-mode .preview-actions {
+    background: rgba(11, 17, 32, 0.96);
+  }
 }

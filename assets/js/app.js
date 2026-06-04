@@ -603,12 +603,16 @@ function saveDefaults() {
   localStorage.setItem(DEFAULTS_KEY, JSON.stringify(defaults));
 }
 
-function showCopyFeedback(message) {
+function showCopyFeedback(message, isError = false) {
   const fb = $('copyFeedback');
   if (!fb) return;
   fb.textContent = message;
+  if (isError) fb.classList.add('feedback-error');
   fb.classList.add('show');
-  setTimeout(() => fb.classList.remove('show'), 2500);
+  setTimeout(() => {
+    fb.classList.remove('show');
+    fb.classList.remove('feedback-error');
+  }, 2500);
 }
 
 function copySubject() {
@@ -779,7 +783,7 @@ function chunkBase64(b64, lineLength = 76) {
 async function downloadEml() {
   const emailOutput = $('emailOutput');
   if (emailOutput && (emailOutput.classList.contains('empty-preview') || emailOutput.innerText.startsWith('Complete the fields'))) {
-    showCopyFeedback('Generate the email first.');
+    showCopyFeedback('Generate the email first.', true);
     return;
   }
 
@@ -788,7 +792,8 @@ async function downloadEml() {
   const files = newEmailFiles.slice();
 
   const encodedSubject = btoa(unescape(encodeURIComponent(subject)));
-  const recipientValue = getValue('recipient', '') || getValue('followUpRecipient', '');
+  let recipientValue = getValue('recipient', '') || getValue('followUpRecipient', '');
+  recipientValue = recipientValue.replace(/[\r\n]+/g, ' ');
 
   const boundary = 'CG_BOUNDARY_' + Date.now().toString(36).toUpperCase();
   const CRLF = '\r\n';
@@ -796,16 +801,19 @@ async function downloadEml() {
   let emlParts = [];
 
   emlParts.push('MIME-Version: 1.0');
+  emlParts.push('From: Claims Generator <noreply>');
+  emlParts.push(`Date: ${new Date().toUTCString()}`);
   if (recipientValue) emlParts.push(`To: ${recipientValue}`);
   emlParts.push(`Subject: =?UTF-8?B?${encodedSubject}?=`);
   emlParts.push(`Content-Type: multipart/mixed; boundary="${boundary}"`);
   emlParts.push('');
   emlParts.push(`--${boundary}`);
 
+  const normalizedBody = body.replace(/\r?\n/g, '\r\n');
   emlParts.push('Content-Type: text/plain; charset=UTF-8');
   emlParts.push('Content-Transfer-Encoding: 8bit');
   emlParts.push('');
-  emlParts.push(body);
+  emlParts.push(normalizedBody);
   emlParts.push('');
 
   const failedFiles = [];
@@ -828,7 +836,7 @@ async function downloadEml() {
   }
 
   if (failedFiles.length) {
-    showCopyFeedback('Warning: ' + failedFiles.join(', ') + ' could not be attached.');
+    showCopyFeedback('Warning: ' + failedFiles.join(', ') + ' could not be attached.', true);
   }
 
   emlParts.push(`--${boundary}--`);

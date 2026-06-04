@@ -147,7 +147,11 @@ function handleClaimTypeChange() {
       if (totalCostInput && totalCostInput.value.trim() !== '') {
         calculateSettlement();
       }
-    }).catch((err) => console.error('Settlement script load failed:', err));
+    }).catch((err) => {
+      console.error('Settlement script load failed:', err);
+      const stmt = document.getElementById('settlementStatement');
+      if (stmt) stmt.textContent = 'Calculator unavailable. Please reload the page.';
+    });
     return;
   }
 
