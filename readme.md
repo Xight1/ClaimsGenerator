@@ -465,3 +465,37 @@ Error states and the validation banner were previously unstyled in dark mode, in
 `#copyFeedback.feedback-error` sets `background: var(--red, #ef4444)`, overriding the default green toast background. This class is applied and removed programmatically by the updated `showCopyFeedback()`.
 
 ---
+
+## Recent Fixes (2026-06-04) — Attached file reset, download guard, and From header
+
+### `assets/js/app.js` + `assets/js/navigation.js` — Attached files cleared on form reset and claim type change
+
+**Problem:** `resetForm()` and `handleClaimTypeChange()` re-rendered the form but left `newEmailFiles` and `replyFiles` arrays untouched. Files selected for a previous claim silently carried over into the next .eml download.
+
+**Fix:** Both functions now set `newEmailFiles.length = 0` and `replyFiles.length = 0`, then call `renderNewEmailFileList()` and `renderReplyFileList()` to clear the displayed file lists. The arrays are emptied in place (`.length = 0`) so existing references remain valid.
+
+---
+
+### `assets/js/app.js` — `downloadEml()` download guard replaced with `[fill in]` token check
+
+**Problem:** The guard that blocked .eml download when required fields were incomplete checked for the `empty-preview` CSS class on `#emailOutput`. That class was never present in practice, so the guard was dead code and downloads could proceed with an incomplete email body.
+
+**Fix:** The class check is replaced with a token check on the body text itself:
+```js
+const body = $('emailOutput')?.innerText || '';
+if (!body || body.includes('[fill in]')) {
+  showCopyFeedback('Complete all fields before sending.', true);
+  return;
+}
+```
+Download is now blocked whenever the body is empty or contains a `[fill in]` placeholder, which is the marker left by unfilled required fields.
+
+---
+
+### `assets/js/app.js` — Invalid `From:` header corrected
+
+**Problem:** The static `From:` header was written as `From: Claims Generator <noreply>`. The `<noreply>` address token is not a valid RFC 2822 address and would cause MIME parsing errors in strict mail clients.
+
+**Fix:** The header is now `From: Claims Generator` — a display-name only, with no malformed address token.
+
+---

@@ -627,6 +627,10 @@ function resetForm() {
   $('senderName').value = '';
   Object.keys(preserved).forEach((key) => delete preserved[key]);
   renderForm({ applyDefaults: false, setDefaultDeadline: false, preserveValues: false });
+  newEmailFiles.length = 0;
+  replyFiles.length = 0;
+  renderNewEmailFileList();
+  renderReplyFileList();
 }
 
 document.addEventListener('input', () => {
@@ -781,14 +785,13 @@ function chunkBase64(b64, lineLength = 76) {
 }
 
 async function downloadEml() {
-  const emailOutput = $('emailOutput');
-  if (emailOutput && (emailOutput.classList.contains('empty-preview') || emailOutput.innerText.startsWith('Complete the fields'))) {
-    showCopyFeedback('Generate the email first.', true);
+  const body = $('emailOutput')?.innerText || '';
+  if (!body || body.includes('[fill in]')) {
+    showCopyFeedback('Complete all fields before sending.', true);
     return;
   }
 
   const subject = $('subjectOutput')?.innerText?.trim() || '';
-  const body = emailOutput?.innerText?.trim() || '';
   const files = newEmailFiles.slice();
 
   const encodedSubject = btoa(unescape(encodeURIComponent(subject)));
@@ -801,7 +804,7 @@ async function downloadEml() {
   let emlParts = [];
 
   emlParts.push('MIME-Version: 1.0');
-  emlParts.push('From: Claims Generator <noreply>');
+  emlParts.push('From: Claims Generator');
   emlParts.push(`Date: ${new Date().toUTCString()}`);
   if (recipientValue) emlParts.push(`To: ${recipientValue}`);
   emlParts.push(`Subject: =?UTF-8?B?${encodedSubject}?=`);
