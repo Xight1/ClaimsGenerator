@@ -1,4 +1,4 @@
-# Claims Generator v2026-06-03 - Beta 1
+# Claims Generator v2026-06-04 - Beta 2
 
 A small static web app for generating claim email text and subjects.
 
