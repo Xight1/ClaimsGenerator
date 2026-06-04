@@ -59,19 +59,19 @@ function ensureSettlementPanel() {
       <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
       <div class="section">
         <label for="settlementTotalCost">Total Cost</label>
-        <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" oninput="calculateSettlement()" />
+        <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" />
       </div>
       <div class="section">
         <label for="settlementReductionPercent">Percentage Reduction</label>
-        <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
+        <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" />
       </div>
       <label class="checkbox-inline">
-        <input type="checkbox" id="includeSettlementExpiration" onchange="calculateSettlement()" />
+        <input type="checkbox" id="includeSettlementExpiration" />
         Include 7 day expiration language
       </label>
       <div id="settlementWarning" class="status-box error" style="display:none;"></div>
       <div class="btn-row">
-        <button type="button" class="btn-danger" onclick="resetSettlementCalculator()">Reset</button>
+        <button type="button" class="btn-danger" id="resetSettlementBtn">Reset</button>
       </div>
     </section>
 
@@ -82,7 +82,7 @@ function ensureSettlementPanel() {
         <div class="preview-label">Settlement Statement</div>
         <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
         <div class="btn-row preview-actions settlement-actions">
-          <button type="button" class="btn-primary" onclick="copySettlementStatement()">Copy Settlement Statement</button>
+          <button type="button" class="btn-primary" id="copySettlementBtn">Copy Settlement Statement</button>
           <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
         </div>
       </div>
@@ -122,6 +122,19 @@ function handleClaimTypeChange() {
     if (claimWorkspace) claimWorkspace.style.display = 'none';
     if (settlementPanel) settlementPanel.style.display = 'grid';
     ensureSettlementScriptLoaded().then(() => {
+      const totalCostInput = document.getElementById('settlementTotalCost');
+      const reductionInput = document.getElementById('settlementReductionPercent');
+      const expirationInput = document.getElementById('includeSettlementExpiration');
+      const resetBtn = document.getElementById('resetSettlementBtn');
+      const copyBtn = document.getElementById('copySettlementBtn');
+      if (totalCostInput && !totalCostInput.dataset.listenersAttached) {
+        totalCostInput.addEventListener('input', () => calculateSettlement());
+        if (reductionInput) reductionInput.addEventListener('input', () => calculateSettlement());
+        if (expirationInput) expirationInput.addEventListener('change', () => calculateSettlement());
+        if (resetBtn) resetBtn.addEventListener('click', () => resetSettlementCalculator());
+        if (copyBtn) copyBtn.addEventListener('click', () => copySettlementStatement());
+        totalCostInput.dataset.listenersAttached = 'true';
+      }
       if (typeof calculateSettlement === 'function') calculateSettlement();
     }).catch(() => {});
     return;

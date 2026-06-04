@@ -164,7 +164,9 @@ function renderForm(options = {}) {
 }
 
 function getTemplateName(type) {
-  return document.querySelector(`#claimType option[value="${type}"]`)?.textContent || type;
+  const select = document.getElementById('claimType');
+  const option = select ? Array.from(select.options).find((opt) => opt.value === type) : null;
+  return option?.textContent || type;
 }
 
 function buildTemplateCue(type) {

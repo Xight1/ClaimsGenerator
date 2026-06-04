@@ -99,12 +99,12 @@ If you want, I can implement the RAF unification and the remaining hot-path chan
 
 | Location | Issue |
 |---|---|
-| `navigation.js:52–86` | Settlement panel inline `oninput`/`onclick` handlers fire before `settlement.js` finishes loading — race condition if script order changes |
-| `app.js:167` | `querySelector` with an interpolated value — fragile if option values ever become dynamic |
+| ~~`navigation.js:52–86`~~ | ~~Settlement panel inline `oninput`/`onclick` handlers fire before `settlement.js` finishes loading — race condition if script order changes~~ — **Fixed 2026-06-03** |
+| ~~`app.js:167`~~ | ~~`querySelector` with an interpolated value — fragile if option values ever become dynamic~~ — **Fixed 2026-06-03** |
 | `app.js` + `performance.js` | Two independent rAF trackers; the performance wrapper is bypassed when `schedulePreviewUpdate` calls `updatePreview()` directly by name |
-| `settlement.js:7` | `addDays()` is duplicated from `app.js` — should be extracted to a shared `utils.js` |
-| `index.html:58` | `value="Kevin"` is hardcoded in HTML and separately in JS — no single source of truth |
-| `settlement.js:37–38` | `calculateSettlement()` accesses DOM elements without null checks (unlike the new `resetSettlementCalculator()`) |
+| ~~`settlement.js:7`~~ | ~~`addDays()` is duplicated from `app.js` — should be extracted to a shared `utils.js`~~ — **Fixed 2026-06-03** |
+| ~~`index.html:58`~~ | ~~`value="Kevin"` is hardcoded in HTML and separately in JS — no single source of truth~~ — **Fixed 2026-06-03** |
+| ~~`settlement.js:37–38`~~ | ~~`calculateSettlement()` accesses DOM elements without null checks (unlike the new `resetSettlementCalculator()`)~~ — **Fixed 2026-06-03** |
 
 ---
 
@@ -154,12 +154,12 @@ If you want, I can implement the RAF unification and the remaining hot-path chan
 
 | Location | Issue |
 |---|---|
-| `navigation.js:52–86` | Settlement panel inline `oninput`/`onclick` handlers fire before `settlement.js` finishes loading — race condition if script load order changes |
-| `app.js:167` | `querySelector` with an interpolated value — fragile if option values ever become dynamic |
+| ~~`navigation.js:52–86`~~ | ~~Settlement panel inline `oninput`/`onclick` handlers fire before `settlement.js` finishes loading — race condition if script load order changes~~ — **Fixed 2026-06-03** |
+| ~~`app.js:167`~~ | ~~`querySelector` with an interpolated value — fragile if option values ever become dynamic~~ — **Fixed 2026-06-03** |
 | `app.js` + `performance.js` | Two independent rAF trackers; the performance wrapper is bypassed by the direct `updatePreview()` call inside `schedulePreviewUpdate` |
-| `settlement.js:7` | `addDays()` duplicated from `app.js` — should be extracted to a shared `utils.js` |
-| `index.html:58` | `value="Kevin"` hardcoded in both HTML and JS — no single source of truth |
-| `settlement.js:37–38` | `calculateSettlement()` accesses DOM elements without null checks |
+| ~~`settlement.js:7`~~ | ~~`addDays()` duplicated from `app.js` — should be extracted to a shared `utils.js`~~ — **Fixed 2026-06-03** |
+| ~~`index.html:58`~~ | ~~`value="Kevin"` hardcoded in both HTML and JS — no single source of truth~~ — **Fixed 2026-06-03** |
+| ~~`settlement.js:37–38`~~ | ~~`calculateSettlement()` accesses DOM elements without null checks~~ — **Fixed 2026-06-03** |
 
 ---
 
@@ -190,3 +190,75 @@ Commas, dollar signs, and any other non-numeric characters (except `.`) are stri
 <input type="checkbox" id="includeSettlementExpiration" onchange="calculateSettlement()" />
 ```
 The expiration clause now only appears when the user explicitly checks the box.
+
+---
+
+## Recent Fixes (2026-06-03) — Settlement race condition, selector safety, negative input handling, and duplicate utility removal
+
+### `assets/js/navigation.js` — Inline event handlers removed from settlement panel; listeners attached programmatically after script load
+
+**Problem:** The settlement panel HTML in `ensureSettlementPanel()` used inline `oninput="calculateSettlement()"`, `onchange="calculateSettlement()"`, and `onclick="resetSettlementCalculator()"` / `onclick="copySettlementStatement()"` attributes. Because `settlement.js` is loaded lazily, these handlers fired as soon as the user interacted with the panel, before the script had necessarily finished loading — producing a `ReferenceError` if the load was slow. The reset and copy buttons had no `id`, making them hard to target programmatically.
+
+**Fix:**
+- All four inline handler attributes (`oninput`, `onchange`, `onclick` × 2) were removed from the HTML.
+- `id="resetSettlementBtn"` and `id="copySettlementBtn"` were added to the reset and copy buttons.
+- Inside the `.then()` callback of `ensureSettlementScriptLoaded()` in `handleClaimTypeChange()`, all five listeners are now attached programmatically: `input` on `#settlementTotalCost` and `#settlementReductionPercent`, `change` on `#includeSettlementExpiration`, `click` on `#resetSettlementBtn` and `#copySettlementBtn`.
+- A `dataset.listenersAttached` guard on `#settlementTotalCost` prevents duplicate listener registration if the settlement panel is toggled more than once.
+- Each element reference is null-checked before the listener is attached.
+
+---
+
+### `assets/js/app.js` — `querySelector` with interpolated value replaced in `getTemplateName()`
+
+**Problem:** `getTemplateName(type)` called `document.querySelector(\`#claimType option[value="${type}"]\`)`. If `type` contained characters that are special in CSS selector syntax (quotes, brackets, etc.), the selector would throw or return a wrong result.
+
+**Fix:** The lookup now uses `Array.from(select.options).find((opt) => opt.value === type)` after retrieving the `<select>` element via `getElementById`. String comparison is used instead of CSS selector interpolation, so no special characters in `type` can affect the result.
+
+---
+
+### `assets/js/settlement.js` — Negative inputs now display `"Invalid input"` and return early in `calculateSettlement()`
+
+**Problem:** When `totalCost` or `reductionPercent` parsed to a negative number (e.g. the user typed `"-5"`), the validation check `>= 0` failed and the fallback clamped the value to `0`, silently treating a negative entry as zero. No error was surfaced to the user.
+
+**Fix:** The sentinel for an invalid value was changed from `0` to `-1`. If either parsed value is `< 0`, `reductionAmountOutput` and `offerAmountOutput` are both set to `"Invalid input"` and the function returns early before touching any other outputs.
+
+---
+
+### `assets/js/settlement.js` — Reduction percentage clamped to 100% in `calculateSettlement()`
+
+**Problem:** There was no upper bound on `reductionPercent`. A value over 100 produced a negative `settlementOffer` (floored to `0` by `Math.max`), while the `reductionAmount` displayed to the user exceeded the total cost — an arithmetically inconsistent result.
+
+**Fix:** `Math.min(validReduction, 100)` is applied before computing `reductionAmount`, so a percentage above 100 is treated as 100 and the offer floors at $0 without producing a misleading reduction amount.
+
+---
+
+### `assets/js/settlement.js` — Null guards added to all DOM output assignments in `calculateSettlement()`
+
+**Problem:** `calculateSettlement()` wrote to `reductionAmountOutput`, `offerAmountOutput`, `statementOutput`, and `warningOutput` without checking whether those elements existed in the DOM. If any were missing (e.g. during a partial render or a future HTML change), the assignments would throw a `TypeError`.
+
+**Fix:** Each assignment is now guarded: `if (reductionAmountOutput)`, `if (offerAmountOutput)`, `if (statementOutput)`, and `if (warningOutput)` wrap their respective writes, consistent with the pattern already used in `resetSettlementCalculator()`.
+
+---
+
+### `assets/js/settlement.js` — Duplicate `addDays()` removed
+
+**Problem:** `settlement.js` defined its own `addDays(date, days)` function. An identical implementation already existed in `app.js` and was available in global scope at the time `settlement.js` runs. The duplicate created a maintenance risk: a fix to one copy would not be reflected in the other.
+
+**Fix:** The local `addDays()` definition was removed from `settlement.js`. All call sites inside `settlement.js` now rely on the definition in `app.js`.
+
+---
+
+### `index.html` — Hardcoded `value="Kevin"` removed from `#senderName` input
+
+**Problem:** The `#senderName` input had `value="Kevin"` in the HTML. The JS also set a default sender name on load, creating two sources of truth. If the HTML default and the JS default ever diverged, the displayed value would depend on which one applied last.
+
+**Fix:** The `value="Kevin"` attribute was removed from the `<input>` element. The JS default on load is now the sole source of truth for the initial sender name value.
+
+---
+
+### Known remaining issues (not yet fixed)
+
+| Location | Issue |
+|---|---|
+| `app.js` + `performance.js` | Two independent rAF trackers; the performance wrapper is bypassed by the direct `updatePreview()` call inside `schedulePreviewUpdate` |
+| `addDays()` | Still lives only in `app.js` global scope — should be extracted to a shared `utils.js` so `settlement.js` has an explicit, non-global dependency |
