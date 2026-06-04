@@ -66,7 +66,7 @@ function ensureSettlementPanel() {
         <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" oninput="calculateSettlement()" />
       </div>
       <label class="checkbox-inline">
-        <input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
+        <input type="checkbox" id="includeSettlementExpiration" onchange="calculateSettlement()" />
         Include 7 day expiration language
       </label>
       <div id="settlementWarning" class="status-box error" style="display:none;"></div>

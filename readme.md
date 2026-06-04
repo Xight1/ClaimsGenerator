@@ -160,3 +160,33 @@ If you want, I can implement the RAF unification and the remaining hot-path chan
 | `settlement.js:7` | `addDays()` duplicated from `app.js` — should be extracted to a shared `utils.js` |
 | `index.html:58` | `value="Kevin"` hardcoded in both HTML and JS — no single source of truth |
 | `settlement.js:37–38` | `calculateSettlement()` accesses DOM elements without null checks |
+
+---
+
+## Recent Fixes (2026-06-03) — Settlement input sanitization and expiration checkbox default
+
+### `assets/js/settlement.js` — Formatted currency strings now parsed correctly in `calculateSettlement()`
+
+**Problem:** `calculateSettlement()` passed `totalCostInput.value` and `reductionInput.value` directly to `Number.parseFloat()`. When a user typed or pasted a formatted value such as `"10,000"` or `"$10,000"`, `parseFloat` stopped at the first non-numeric character and returned `10`. All downstream calculations (reduction amount, offer amount, statement text) were then computed from `10` instead of `10000` — wrong by a factor of 1,000 with no warning shown.
+
+**Fix:** Both values are now sanitized with `.replace(/[^0-9.]/g, '')` before being passed to `parseFloat`:
+```js
+const totalCost = Number.parseFloat((totalCostInput.value || "0").replace(/[^0-9.]/g, ''));
+const reductionPercent = Number.parseFloat((reductionInput.value || "0").replace(/[^0-9.]/g, ''));
+```
+Commas, dollar signs, and any other non-numeric characters (except `.`) are stripped first, so `"$10,000"` correctly parses as `10000`.
+
+---
+
+### `assets/js/navigation.js` — Expiration checkbox no longer defaults to checked in `ensureSettlementPanel()`
+
+**Problem:** The `#includeSettlementExpiration` checkbox in the settlement panel HTML was rendered with the `checked` attribute, so it was on by default. This caused the 7-day expiration clause to appear in the generated statement as soon as the panel loaded, before the user had entered any values or made a deliberate choice.
+
+**Fix:** The `checked` attribute was removed from the checkbox input:
+```html
+<!-- before -->
+<input type="checkbox" id="includeSettlementExpiration" checked onchange="calculateSettlement()" />
+<!-- after -->
+<input type="checkbox" id="includeSettlementExpiration" onchange="calculateSettlement()" />
+```
+The expiration clause now only appears when the user explicitly checks the box.

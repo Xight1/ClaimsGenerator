@@ -27,8 +27,8 @@ function calculateSettlement() {
   const warningOutput = document.getElementById("settlementWarning");
   const statementOutput = document.getElementById("settlementStatement");
 
-  const totalCost = Number.parseFloat(totalCostInput.value || "0");
-  const reductionPercent = Number.parseFloat(reductionInput.value || "0");
+  const totalCost = Number.parseFloat((totalCostInput.value || "0").replace(/[^0-9.]/g, ''));
+  const reductionPercent = Number.parseFloat((reductionInput.value || "0").replace(/[^0-9.]/g, ''));
   const validTotal = Number.isFinite(totalCost) && totalCost >= 0 ? totalCost : 0;
   const validReduction = Number.isFinite(reductionPercent) && reductionPercent >= 0 ? reductionPercent : 0;
   const reductionAmount = validTotal * (validReduction / 100);
