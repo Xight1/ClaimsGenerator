@@ -84,7 +84,6 @@ function copySettlementStatement() {
     if (!feedback) return;
     feedback.classList.add("show");
     setTimeout(() => feedback.classList.remove("show"), 1400);
-  });
+  }).catch((err) => console.error('Failed to copy:', err));
 }
 
-document.addEventListener("DOMContentLoaded", calculateSettlement);

@@ -24,7 +24,11 @@ function updateSelectedTemplateIndicator(value) {
   const indicator = (typeof getCached === 'function' ? getCached('selectedTemplateIndicator') : document.getElementById('selectedTemplateIndicator'));
   if (!indicator) return;
   const selectedLabel = getTemplateLabel(value);
-  indicator.innerHTML = `<span>Selected Template</span><strong>${selectedLabel}</strong>`;
+  const labelSpan = document.createElement('span');
+  labelSpan.textContent = 'Selected Template';
+  const valueStrong = document.createElement('strong');
+  valueStrong.textContent = selectedLabel;
+  indicator.replaceChildren(labelSpan, valueStrong);
 }
 
 function updateActiveTaskbar(value) {

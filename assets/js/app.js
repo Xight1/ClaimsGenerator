@@ -231,7 +231,13 @@ function buildSelectField(field, container) {
   const label = document.createElement('label');
   const select = document.createElement('select');
   label.setAttribute('for', field.id);
-  label.innerHTML = field.label + (field.required ? ' <span style="color:var(--red)">*</span>' : '');
+  label.textContent = field.label;
+  if (field.required) {
+    const asterisk = document.createElement('span');
+    asterisk.style.color = 'var(--red)';
+    asterisk.textContent = ' *';
+    label.appendChild(asterisk);
+  }
   select.id = field.id;
   if (field.required) select.dataset.required = 'true';
   field.options.forEach((opt) => select.add(new Option(opt.text, opt.value)));
@@ -268,7 +274,13 @@ function buildInputField(field, container) {
   const label = document.createElement('label');
   const input = field.type === 'textarea' ? document.createElement('textarea') : document.createElement('input');
   label.setAttribute('for', field.id);
-  label.innerHTML = field.label + (field.required ? ' <span style="color:var(--red)">*</span>' : '');
+  label.textContent = field.label;
+  if (field.required) {
+    const asterisk = document.createElement('span');
+    asterisk.style.color = 'var(--red)';
+    asterisk.textContent = ' *';
+    label.appendChild(asterisk);
+  }
   input.id = field.id;
   input.placeholder = field.placeholder || '';
 
@@ -598,11 +610,11 @@ function showCopyFeedback(message) {
 }
 
 function copySubject() {
-  navigator.clipboard.writeText($('subjectOutput').innerText).then(() => showCopyFeedback('Subject copied!'));
+  navigator.clipboard.writeText($('subjectOutput').innerText).then(() => showCopyFeedback('Subject copied!')).catch((err) => console.error('Failed to copy subject:', err));
 }
 
 function copyEmail() {
-  navigator.clipboard.writeText($('emailOutput').innerText).then(() => showCopyFeedback('Body copied!'));
+  navigator.clipboard.writeText($('emailOutput').innerText).then(() => showCopyFeedback('Body copied!')).catch((err) => console.error('Failed to copy email body:', err));
 }
 
 function resetForm() {
