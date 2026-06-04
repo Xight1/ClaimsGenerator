@@ -41,6 +41,8 @@ function calculateSettlement() {
   const reductionAmount = validTotal * (clampedReduction / 100);
   const settlementOffer = Math.max(validTotal - reductionAmount, 0);
 
+  const originalAmountOutput = document.getElementById('settlementOriginalAmount');
+  if (originalAmountOutput) originalAmountOutput.textContent = validTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   if (reductionAmountOutput) reductionAmountOutput.textContent = formatSettlementCurrency(reductionAmount);
   if (offerAmountOutput) offerAmountOutput.textContent = formatSettlementCurrency(settlementOffer);
 
@@ -77,6 +79,8 @@ function resetSettlementCalculator() {
   if (totalCostInput) totalCostInput.value = "";
   if (reductionInput) reductionInput.value = "";
   if (includeExpirationInput) includeExpirationInput.checked = false;
+  const originalAmountOutput = document.getElementById("settlementOriginalAmount");
+  if (originalAmountOutput) originalAmountOutput.textContent = "—";
   if (reductionAmountOutput) reductionAmountOutput.textContent = "$0.00";
   if (offerAmountOutput) offerAmountOutput.textContent = "$0.00";
   if (warningOutput) {

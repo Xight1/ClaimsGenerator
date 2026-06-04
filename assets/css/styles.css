@@ -439,6 +439,54 @@ button:hover { transform: translateY(-1px); }
   color: var(--red);
 }
 
+.input-symbol-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input-symbol-wrap:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
+.input-symbol-wrap input[type="text"] {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  flex: 1 1 0;
+  min-width: 0;
+  outline: none;
+}
+
+.input-symbol-wrap input[type="text"]:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.input-prefix,
+.input-suffix {
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 0.65rem;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.input-prefix {
+  padding-right: 0.35rem;
+}
+
+.input-suffix {
+  padding-left: 0.35rem;
+}
+
 @media (max-width: 900px) {
   body { padding: 1rem; }
   .app-header {

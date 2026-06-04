@@ -317,3 +317,39 @@ Clearing the cached promise allows the next call to `ensureSettlementScriptLoade
 **Problem:** `calculateSettlement()` accessed `includeExpirationInput.checked` without optional chaining. All other element references in the function used the `?.` operator, but this one did not. If `#includeSettlementExpiration` were absent from the DOM, this line would throw a `TypeError` rather than treating the checkbox as unchecked.
 
 **Fix:** The access is now `includeExpirationInput?.checked`, consistent with the null-safe pattern used for the other element references in the same function.
+
+---
+
+## Recent Changes (2026-06-03) — Settlement input symbol decorators
+
+### `assets/js/navigation.js` + `assets/css/styles.css` — Currency and percentage symbols added to settlement inputs
+
+The two plain `<input>` elements in the settlement panel now render with inline symbol decorators.
+
+- `#settlementTotalCost` is wrapped in `.input-symbol-wrap` with a `.input-prefix` span displaying `$`.
+- `#settlementReductionPercent` is wrapped in `.input-symbol-wrap` with a `.input-suffix` span displaying `%`.
+
+Three new CSS rules support the layout:
+
+- `.input-symbol-wrap` — flex container with its own border, background, and `border-radius`. The inner `<input>` has its own border and box-shadow stripped so the wrapper acts as the single visible field boundary.
+- `.input-symbol-wrap:focus-within` — applies the standard blue border and box-shadow ring when the inner input is focused, matching the app's existing focus style.
+- `.input-prefix` / `.input-suffix` — muted, bold, non-selectable labels with asymmetric padding to sit flush against the input text.
+
+---
+
+### `assets/js/navigation.js` — `settlementOriginalAmount` output line added to Settlement Summary
+
+The `.subject-box` in the settlement preview panel now includes an `Original Amount` line above the existing `Reduction Amount` line:
+
+```html
+Original Amount: <span id="settlementOriginalAmount">—</span>
+```
+
+The span renders `—` on load and before any calculation runs.
+
+---
+
+### `assets/js/settlement.js` — `calculateSettlement()` populates `settlementOriginalAmount`; `resetSettlementCalculator()` resets it
+
+- In `calculateSettlement()`, after `validTotal` is determined, `#settlementOriginalAmount` is set to `validTotal` formatted as USD currency via `toLocaleString('en-US', { style: 'currency', currency: 'USD' })`.
+- In `resetSettlementCalculator()`, `#settlementOriginalAmount` is reset to `"—"`, matching the initial placeholder state. Both DOM lookups are null-guarded.

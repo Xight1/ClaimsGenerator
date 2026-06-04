@@ -59,11 +59,17 @@ function ensureSettlementPanel() {
       <p class="helper-text">Calculate a settlement offer using the total cost and a percentage reduction. Any reduction over 10% will display a SIF authority warning.</p>
       <div class="section">
         <label for="settlementTotalCost">Total Cost</label>
-        <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" />
+        <div class="input-symbol-wrap">
+          <span class="input-prefix">$</span>
+          <input type="text" id="settlementTotalCost" inputmode="decimal" placeholder="e.g. 10000" />
+        </div>
       </div>
       <div class="section">
         <label for="settlementReductionPercent">Percentage Reduction</label>
-        <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" />
+        <div class="input-symbol-wrap">
+          <input type="text" id="settlementReductionPercent" inputmode="decimal" placeholder="e.g. 10" />
+          <span class="input-suffix">%</span>
+        </div>
       </div>
       <label class="checkbox-inline">
         <input type="checkbox" id="includeSettlementExpiration" />
@@ -78,7 +84,7 @@ function ensureSettlementPanel() {
     <section class="preview-panel settlement-preview-panel">
       <div class="preview-sticky">
         <div class="preview-label">Settlement Summary</div>
-        <div class="subject-box">Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
+        <div class="subject-box">Original Amount: <span id="settlementOriginalAmount">—</span><br />Reduction Amount: <span id="settlementReductionAmount">$0.00</span><br />Settlement Offer: <span id="settlementOfferAmount">$0.00</span></div>
         <div class="preview-label">Settlement Statement</div>
         <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
         <div class="btn-row preview-actions settlement-actions">
