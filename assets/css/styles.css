@@ -489,6 +489,22 @@ button:hover { transform: translateY(-1px); }
   padding: 0.78rem 0.95rem 0.78rem 0;
 }
 
+body.dark-mode .input-symbol-wrap {
+  background: #111827;
+  border-color: #334155;
+  color: #ffffff;
+}
+
+body.dark-mode .input-symbol-wrap input[type="text"] {
+  background: transparent !important;
+  color: #ffffff;
+}
+
+body.dark-mode .input-prefix,
+body.dark-mode .input-suffix {
+  color: #d1d5db;
+}
+
 @media (max-width: 900px) {
   body { padding: 1rem; }
   .app-header {
