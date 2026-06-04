@@ -262,3 +262,58 @@ The expiration clause now only appears when the user explicitly checks the box.
 |---|---|
 | `app.js` + `performance.js` | Two independent rAF trackers; the performance wrapper is bypassed by the direct `updatePreview()` call inside `schedulePreviewUpdate` |
 | `addDays()` | Still lives only in `app.js` global scope — should be extracted to a shared `utils.js` so `settlement.js` has an explicit, non-global dependency |
+
+---
+
+## Recent Fixes (2026-06-03) — Settlement calculator robustness: guard rails, retry, and optional chaining
+
+### `assets/js/navigation.js` — Eager `calculateSettlement()` call now guarded by non-empty input check
+
+**Problem:** After attaching event listeners inside the `.then()` callback of `ensureSettlementScriptLoaded()`, `handleClaimTypeChange()` immediately called `calculateSettlement()` unconditionally. Every time the user switched to the Settlement tab — even with a blank form — this produced a `$0.00` statement that overwrote the placeholder text.
+
+**Fix:** The unconditional `if (typeof calculateSettlement === 'function') calculateSettlement()` call was replaced with:
+```js
+if (totalCostInput && totalCostInput.value.trim() !== '') {
+  calculateSettlement();
+}
+```
+`calculateSettlement()` now only fires on tab entry if `#settlementTotalCost` already has a non-empty value, preserving the placeholder when the field is blank.
+
+---
+
+### `assets/js/navigation.js` — Silent `.catch(() => {})` replaced with console error logging
+
+**Problem:** The `.catch()` handler on the `ensureSettlementScriptLoaded()` promise was `.catch(() => {})` — a no-op that swallowed all script load failures silently. If `settlement.js` failed to load (network error, 404, etc.), nothing appeared in the console.
+
+**Fix:** The handler is now `.catch((err) => console.error('Settlement script load failed:', err))`, matching the error-surfacing pattern used elsewhere in the codebase.
+
+---
+
+### `assets/js/navigation.js` — `onerror` handler now resets load promise before rejecting
+
+**Problem:** The `script.onerror` callback inside `ensureSettlementScriptLoaded()` called `reject()` but left `window.__claimsSettlementLoadPromise` pointing at the failed, rejected promise. Any subsequent tab visit would resolve to the same rejected promise instead of re-attempting the script load.
+
+**Fix:** `window.__claimsSettlementLoadPromise = null` is now set before calling `reject()`:
+```js
+script.onerror = () => {
+  window.__claimsSettlementLoadPromise = null;
+  reject(new Error('Failed to load settlement.js'));
+};
+```
+Clearing the cached promise allows the next call to `ensureSettlementScriptLoaded()` to create a fresh `<script>` tag and retry.
+
+---
+
+### `assets/js/navigation.js` — `data-listenersAttached` guard moved from `totalCostInput` to `settlementPanel`
+
+**Problem:** The guard that prevented duplicate listener registration was stored on `totalCostInput.dataset.listenersAttached`. If the settlement panel element were ever rebuilt (e.g. by `ensureSettlementPanel()` re-running), `totalCostInput` would be a new DOM node without the flag, so all listeners would be re-attached to a fresh input while the old listeners remained on the discarded node.
+
+**Fix:** The guard is now stored on `settlementPanel.dataset.listenersAttached` — the container element that `ensureSettlementPanel()` manages — so the flag travels with the panel rather than with an individual input.
+
+---
+
+### `assets/js/settlement.js` — `includeExpirationInput.checked` replaced with optional chaining in `calculateSettlement()`
+
+**Problem:** `calculateSettlement()` accessed `includeExpirationInput.checked` without optional chaining. All other element references in the function used the `?.` operator, but this one did not. If `#includeSettlementExpiration` were absent from the DOM, this line would throw a `TypeError` rather than treating the checkbox as unchecked.
+
+**Fix:** The access is now `includeExpirationInput?.checked`, consistent with the null-safe pattern used for the other element references in the same function.

@@ -102,7 +102,10 @@ function ensureSettlementScriptLoaded() {
     script.src = 'assets/js/settlement.js';
     script.async = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load settlement.js'));
+    script.onerror = () => {
+      window.__claimsSettlementLoadPromise = null;
+      reject(new Error('Failed to load settlement.js'));
+    };
     document.head.appendChild(script);
   });
 
@@ -127,16 +130,18 @@ function handleClaimTypeChange() {
       const expirationInput = document.getElementById('includeSettlementExpiration');
       const resetBtn = document.getElementById('resetSettlementBtn');
       const copyBtn = document.getElementById('copySettlementBtn');
-      if (totalCostInput && !totalCostInput.dataset.listenersAttached) {
-        totalCostInput.addEventListener('input', () => calculateSettlement());
+      if (settlementPanel && !settlementPanel.dataset.listenersAttached) {
+        if (totalCostInput) totalCostInput.addEventListener('input', () => calculateSettlement());
         if (reductionInput) reductionInput.addEventListener('input', () => calculateSettlement());
         if (expirationInput) expirationInput.addEventListener('change', () => calculateSettlement());
         if (resetBtn) resetBtn.addEventListener('click', () => resetSettlementCalculator());
         if (copyBtn) copyBtn.addEventListener('click', () => copySettlementStatement());
-        totalCostInput.dataset.listenersAttached = 'true';
+        settlementPanel.dataset.listenersAttached = 'true';
       }
-      if (typeof calculateSettlement === 'function') calculateSettlement();
-    }).catch(() => {});
+      if (totalCostInput && totalCostInput.value.trim() !== '') {
+        calculateSettlement();
+      }
+    }).catch((err) => console.error('Settlement script load failed:', err));
     return;
   }
 

@@ -57,7 +57,7 @@ function calculateSettlement() {
   let statement = "In the interest of resolving this matter amicably, we are willing to offer a settlement in the amount of " + formatSettlementCurrency(settlementOffer) + ".\n\n";
   statement += "Please advise whether this settlement is acceptable and whether you wish to proceed. Upon acceptance of this offer and receipt and clearance of payment, this claim will be considered fully resolved and closed, and no further action will be taken regarding this matter.";
 
-  if (includeExpirationInput.checked) {
+  if (includeExpirationInput?.checked) {
     const expirationDate = formatExpirationDate(addDays(new Date(), 7));
     statement += "\n\nThis settlement offer will remain open through " + expirationDate + ". If we do not receive your acceptance by that date, this offer will automatically expire and be considered withdrawn. Neither our office nor our client is obligated to renew, extend, or reissue this offer.";
   }
