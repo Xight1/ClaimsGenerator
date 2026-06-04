@@ -449,7 +449,7 @@ function buildSubject(type, client, clientClaim, tccClaim, insuranceClaim = BLAN
   if (type === 'followup') return 'Follow Up Regarding Open Claim';
   if (type === 'payment') return `Payment Information | ${client} # ${clientClaim} | TCC # ${tccClaim}`;
   if (type === 'escalation') return `Claim Escalation | ${client} # ${clientClaim} | TCC # ${tccClaim}`;
-  if (type === 'insurance') return `Insurance Claim # ${insuranceClaim} | ${client} # ${clientClaim} | TCC # ${tccClaim}`;
+  if (type === 'insurance') return `Your Claim # ${insuranceClaim} | ${client} # ${clientClaim} | TCC # ${tccClaim}`;
   return `${client} # ${clientClaim} | TCC # ${tccClaim}`;
 }
 
