@@ -660,6 +660,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Attachments feature ──────────────────────────────────────────────────────
 
+let newEmailFiles = [];
+let replyFiles = [];
+
 function handleEmailModeChange() {
   const mode = document.querySelector('input[name="emailMode"]:checked')?.value || 'new';
   const newSection = $('attachNewEmail');
@@ -671,30 +674,21 @@ function handleEmailModeChange() {
 
 function handleNewEmailFilesChange() {
   const input = $('newEmailFiles');
-  const list = $('newEmailFileList');
-  if (!input || !list) return;
-  list.innerHTML = '';
-  const files = Array.from(input.files || []);
-  files.forEach((file) => {
-    const item = document.createElement('div');
-    item.className = 'attach-file-item';
-    const icon = document.createElement('span');
-    icon.textContent = '📎'; // paperclip emoji as fallback icon
-    icon.setAttribute('aria-hidden', 'true');
-    const name = document.createElement('span');
-    name.textContent = file.name;
-    item.append(icon, name);
-    list.appendChild(item);
+  if (!input) return;
+  Array.from(input.files || []).forEach((file) => {
+    if (!newEmailFiles.some((f) => f.name === file.name && f.size === file.size)) {
+      newEmailFiles.push(file);
+    }
   });
+  input.value = '';
+  renderNewEmailFileList();
 }
 
-function handleReplyFilesChange() {
-  const input = $('replyFiles');
-  const list = $('replyFileList');
-  if (!input || !list) return;
-  list.innerHTML = '';
-  const files = Array.from(input.files || []);
-  files.forEach((file) => {
+function renderNewEmailFileList() {
+  const list = $('newEmailFileList');
+  if (!list) return;
+  list.textContent = '';
+  newEmailFiles.forEach((file, index) => {
     const item = document.createElement('div');
     item.className = 'attach-file-item';
     const icon = document.createElement('span');
@@ -702,7 +696,52 @@ function handleReplyFilesChange() {
     icon.setAttribute('aria-hidden', 'true');
     const name = document.createElement('span');
     name.textContent = file.name;
-    item.append(icon, name);
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'attach-delete-btn';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      newEmailFiles.splice(index, 1);
+      renderNewEmailFileList();
+    });
+    item.append(icon, name, del);
+    list.appendChild(item);
+  });
+}
+
+function handleReplyFilesChange() {
+  const input = $('replyFiles');
+  if (!input) return;
+  Array.from(input.files || []).forEach((file) => {
+    if (!replyFiles.some((f) => f.name === file.name && f.size === file.size)) {
+      replyFiles.push(file);
+    }
+  });
+  input.value = '';
+  renderReplyFileList();
+}
+
+function renderReplyFileList() {
+  const list = $('replyFileList');
+  if (!list) return;
+  list.textContent = '';
+  replyFiles.forEach((file, index) => {
+    const item = document.createElement('div');
+    item.className = 'attach-file-item';
+    const icon = document.createElement('span');
+    icon.textContent = '📎';
+    icon.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('span');
+    name.textContent = file.name;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'attach-delete-btn';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      replyFiles.splice(index, 1);
+      renderReplyFileList();
+    });
+    item.append(icon, name, del);
     list.appendChild(item);
   });
 }
@@ -746,8 +785,7 @@ async function downloadEml() {
 
   const subject = $('subjectOutput')?.innerText?.trim() || '';
   const body = emailOutput?.innerText?.trim() || '';
-  const input = $('newEmailFiles');
-  const files = Array.from(input?.files || []);
+  const files = newEmailFiles.slice();
 
   const encodedSubject = btoa(unescape(encodeURIComponent(subject)));
   const recipientValue = getValue('recipient', '') || getValue('followUpRecipient', '');
