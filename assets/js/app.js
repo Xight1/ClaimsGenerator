@@ -6,7 +6,7 @@ function schedulePreviewUpdate() {
   if (previewFrame) return;
   previewFrame = requestAnimationFrame(() => {
     previewFrame = 0;
-    updatePreview();
+    window.updatePreview();
     updateProgressBar();
   });
 }
@@ -363,7 +363,7 @@ function clearValidation() {
 
 function getValue(id, fallback = BLANK) {
   const value = $(id)?.value.trim();
-  return value || fallback;
+  return normalizeCase(value) || fallback;
 }
 
 function getGreetingWord() {
@@ -376,7 +376,7 @@ function getGreetingWord() {
 function getClientName() {
   const selectedClient = $('client')?.value.trim() || 'CenterPoint Energy';
   const customClient = $('customClient')?.value.trim() || '';
-  return selectedClient === 'custom' ? (customClient || BLANK) : selectedClient;
+  return selectedClient === 'custom' ? (normalizeCase(customClient) || BLANK) : selectedClient;
 }
 
 function isValidCurrency(raw) {
@@ -388,6 +388,14 @@ function formatCost(raw) {
   const num = parseFloat(String(raw || '').replace(/[$,\s]/g, ''));
   if (Number.isNaN(num)) return raw || BLANK;
   return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function normalizeCase(str) {
+  if (!str || typeof str !== 'string') return str;
+  if (!/[A-Z]/.test(str) || /[a-z]/.test(str)) return str;
+  // Skip strings that look like codes/IDs: digits present but no spaces (e.g. CLM-12345)
+  if (/\d/.test(str) && !/\s/.test(str)) return str;
+  return str.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
 }
 
 function formatShortDate(date) {
@@ -616,11 +624,15 @@ function showCopyFeedback(message, isError = false) {
 }
 
 function copySubject() {
-  navigator.clipboard.writeText($('subjectOutput').innerText).then(() => showCopyFeedback('Subject copied!')).catch((err) => console.error('Failed to copy subject:', err));
+  navigator.clipboard.writeText($('subjectOutput').innerText)
+    .then(() => showCopyFeedback('Subject copied!'))
+    .catch(() => showCopyFeedback('Copy failed.'));
 }
 
 function copyEmail() {
-  navigator.clipboard.writeText($('emailOutput').innerText).then(() => showCopyFeedback('Body copied!')).catch((err) => console.error('Failed to copy email body:', err));
+  navigator.clipboard.writeText($('emailOutput').innerText)
+    .then(() => showCopyFeedback('Body copied!'))
+    .catch(() => showCopyFeedback('Copy failed.'));
 }
 
 function resetForm() {

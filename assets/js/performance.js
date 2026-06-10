@@ -1,3 +1,4 @@
+// Must run after app.js — wraps window.updatePreview and window.saveDefaults defined there.
 (function () {
   const originalUpdatePreview = window.updatePreview;
   const originalSaveDefaults = window.saveDefaults;

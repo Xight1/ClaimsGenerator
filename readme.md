@@ -1,4 +1,4 @@
-# Claims Generator v2026-06-04 - Beta 2
+# Claims Generator v2026-06-10 - Stable
 
 A small static web app for generating claim email text and subjects.
 
@@ -499,3 +499,37 @@ Download is now blocked whenever the body is empty or contains a `[fill in]` pla
 **Fix:** The header is now `From: Claims Generator` — a display-name only, with no malformed address token.
 
 ---
+
+## Recent Changes: Auto Case Normalization & Bug Fixes (2026-06-10)
+
+### New feature: `normalizeCase(str)` — `assets/js/app.js`
+
+A new `normalizeCase(str)` function was added. It is called inside `getValue()` and `getClientName()` before any field value is written into the generated email output.
+
+Behavior:
+
+- If the input string is entirely uppercase (e.g. `"JOHN SMITH"`, `"123 MAIN STREET"`), it is converted to title case (`"John Smith"`, `"123 Main Street"`).
+- Strings that are already mixed case are returned unchanged — the function only acts when every letter in the string is uppercase.
+- Strings that contain digits and no spaces (e.g. `CLM-12345`, `TCC-67890`) are left unchanged, because these are claim/ticket IDs where capitalization is meaningful.
+
+This means users who paste or type all-caps text into name, address, or description fields will see normalized output in the email body and subject without needing to manually reformat.
+
+### Bug fixes
+
+**`assets/js/app.js`**
+
+- `copySubject()` and `copyEmail()`: clipboard failures previously resolved silently. Both `.catch()` handlers now call `showCopyFeedback('Copy failed.')` so the user sees feedback on failure.
+- `schedulePreviewUpdate()`: previously called `updatePreview()` directly, bypassing the optimized version registered by `performance.js`. Corrected to call `window.updatePreview()`, which resolves to the wrapped, diff-checking implementation when `performance.js` is loaded.
+
+**`assets/js/performance.js`**
+
+- Added a comment at the top of the file documenting that it must be loaded after `app.js`, since it wraps `window.updatePreview` and `window.saveDefaults` defined there.
+
+**`assets/js/navigation.js`**
+
+- `updateSelectedTemplateIndicator(value)`: rewrote the function to build the indicator element using DOM methods (`createElement`, `textContent`, `replaceChildren`) instead of `innerHTML`. This removes a class of XSS risk from template label values being written directly as HTML.
+- `handleClaimTypeChange()`: the `.catch()` on `ensureSettlementScriptLoaded()` now logs to console and shows `'Calculator unavailable. Please reload the page.'` inline in the settlement statement element, replacing the previous silent swallow.
+
+**`index.html`**
+
+- Removed the hardcoded `value="Kevin"` attribute from the sender name `<input>`. The sender name is now populated exclusively from `localStorage` via `getSavedDefaults()` on `DOMContentLoaded`, falling back to the `DEFAULT_SENDER_NAME` constant defined in `app.js`.
