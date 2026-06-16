@@ -519,7 +519,7 @@ function composeEmail() {
     const claimRef = getValue('demandClaimRef');
     const demandType = $('demandRequestType')?.value || 'Demand Needed';
     return {
-      subject: `${claimRef} - ${demandType}`,
+      subject: `(${claimRef}) - ${demandType}`,
       body: `Good ${greetingWord},\n\nI am requesting the demand for the above referenced claim.\n\nPlease advise if you have any questions.`
     };
   }
