@@ -18,6 +18,14 @@ netlify.toml
 
 ---
 
+## Recent Changes (2026-06-16) — Claim number auto-uppercase
+
+### `assets/js/app.js` — New `getClaimValue()` helper forces uppercase on all claim number fields
+
+Claim number fields (`clientClaim`, `tccClaim`, `insuranceClaim`) are now always uppercased in generated subjects and email bodies, regardless of how the user types them. A new `getClaimValue(id)` helper retrieves the field value and calls `.toUpperCase()` before returning it (falling back to the `[fill in]` placeholder when empty). The three claim number lookups in `composeEmail()` were updated to use this helper instead of `getValue()`. The Demand Request template's `demandClaimRef` field already applied `.toUpperCase()` inline and is unchanged.
+
+---
+
 ## Recent Changes: Performance & DOM Cache (2026-06-02)
 
 To improve runtime responsiveness and reduce redundant DOM lookups, a small DOM caching helper was added to `assets/js/config.js`.

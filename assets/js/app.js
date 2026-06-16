@@ -381,6 +381,11 @@ function getValue(id, fallback = BLANK) {
   return normalizeCase(value) || fallback;
 }
 
+function getClaimValue(id) {
+  const value = $(id)?.value.trim();
+  return value ? value.toUpperCase() : BLANK;
+}
+
 function getGreetingWord() {
   const hour = new Date().getHours();
   if (hour < 12) return 'Morning';
@@ -488,9 +493,9 @@ function composeEmail() {
   const recipient = getValue('recipient', '');
   const greetingLine = recipient ? `Good ${greetingWord} ${recipient},` : `Good ${greetingWord},`;
   const client = getClientName();
-  const clientClaim = getValue('clientClaim');
-  const tccClaim = getValue('tccClaim');
-  const insuranceClaim = getValue('insuranceClaim');
+  const clientClaim = getClaimValue('clientClaim');
+  const tccClaim = getClaimValue('tccClaim');
+  const insuranceClaim = getClaimValue('insuranceClaim');
   const subject = buildSubject(type, client, clientClaim, tccClaim, insuranceClaim);
 
   if (type === 'payment') {
