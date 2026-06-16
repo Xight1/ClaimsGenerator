@@ -117,7 +117,7 @@ const fields = {
   ],
   demand: [
     { type: 'section-title', label: 'Claim Reference' },
-    claimNumberRow,
+    { label: 'Claim Number', id: 'demandClaimRef', placeholder: 'e.g. CLM-12345 or TCC-67890', required: true },
     { type: 'section-title', label: 'Request Type' },
     {
       label: 'Request Type',
@@ -516,18 +516,11 @@ function composeEmail() {
   }
 
   if (type === 'demand') {
-    const demandClientClaim = $('clientClaim')?.value.trim();
-    const demandTccClaim = $('tccClaim')?.value.trim();
-    let claimRef;
-    if (demandClientClaim && demandTccClaim) {
-      claimRef = `${demandClientClaim} / ${demandTccClaim}`;
-    } else {
-      claimRef = demandClientClaim || demandTccClaim || BLANK;
-    }
+    const claimRef = getValue('demandClaimRef');
     const demandType = $('demandRequestType')?.value || 'Demand Needed';
     return {
       subject: `${claimRef} - ${demandType}`,
-      body: `Good ${greetingWord},\n\nI am requesting the demand for the above referenced claim. Please advise if you have any questions.`
+      body: `Good ${greetingWord},\n\nI am requesting the demand for the above referenced claim.\n\nPlease advise if you have any questions.`
     };
   }
 
