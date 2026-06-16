@@ -516,7 +516,7 @@ function composeEmail() {
   }
 
   if (type === 'demand') {
-    const claimRef = getValue('demandClaimRef');
+    const claimRef = ($('demandClaimRef')?.value.trim() || BLANK).toUpperCase();
     const demandType = $('demandRequestType')?.value || 'Demand Needed';
     return {
       subject: `(${claimRef}) - ${demandType}`,
