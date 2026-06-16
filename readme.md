@@ -1,10 +1,10 @@
-# Claims Generator v2026-06-10 - Stable
+# Claims Generator v2026-06-16 - Stable
 
 A small static web app for generating claim email text and subjects.
 
 ## Overview
 
-This repository contains a lightweight single-page application that helps build and preview claim-related emails (subject and body) based on several templates (Gas Claim, Streetlight, Escalation, Payment, Follow Up, Insurance, Settlement).
+This repository contains a lightweight single-page application that helps build and preview claim-related emails (subject and body) based on several templates (Gas Claim, Streetlight, Escalation, Payment, Follow Up, Insurance, Settlement, Demand Request).
 
 ## Expected file structure
 
@@ -44,6 +44,33 @@ If you want, I can implement the RAF unification and the remaining hot-path chan
 ---
 
 ## Changelog
+
+### 2026-06-16 — Demand Request template added
+
+#### `index.html` — New button and select option
+
+**What changed:** A "Demand Request" button was added to the topbar nav (after the Follow Up button). A matching `<option value="demand">Demand Request</option>` was added to the `#claimType` select.
+
+**Why:** The Demand Request workflow was previously handled outside the app. Adding it as a template brings it in line with the other internal request types.
+
+**Status:** Complete.
+
+---
+
+#### `assets/js/app.js` — Demand type fields, validation, and email composition
+
+**What changed:**
+
+- Sender name field is hidden and skipped during validation when `claimType` is `demand`, matching the existing pattern used by `payment` and `followup`.
+- The `demand` form renders a Claim Reference section reusing the shared `claimNumberRow` (Client Claim # and TCC Claim # fields), followed by a Request Type `<select>` with two options: "Demand Needed" and "Balance Adjustment".
+- Email subject is built as `{claimRef} - {requestType}`. The claim reference portion handles all three states: both claim numbers present, one present, or neither (in which case the subject is just the request type).
+- Email body opens with an auto time-of-day greeting ("Good Morning / Afternoon / Evening") and reads: "I am requesting the demand for the above referenced claim. Please advise if you have any questions."
+
+**Why:** Provides a consistent, repeatable format for internal demand requests without requiring the user to compose the subject line or greeting manually.
+
+**Status:** Complete.
+
+---
 
 ### 2026-06-03 — Form reset, progress bar, and theme toggle fixes
 

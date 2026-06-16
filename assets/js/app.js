@@ -114,6 +114,21 @@ const fields = {
       { label: 'Insurance Claim Number', id: 'insuranceClaim', placeholder: 'e.g. INS-24680', required: true },
       { label: 'Claim Amount ($)', id: 'cost', placeholder: 'e.g. 1500.00', required: true }
     ] }
+  ],
+  demand: [
+    { type: 'section-title', label: 'Claim Reference' },
+    claimNumberRow,
+    { type: 'section-title', label: 'Request Type' },
+    {
+      label: 'Request Type',
+      id: 'demandRequestType',
+      type: 'select',
+      required: true,
+      options: [
+        { value: 'Demand Needed', text: 'Demand Needed' },
+        { value: 'Balance Adjustment', text: 'Balance Adjustment' }
+      ]
+    }
   ]
 };
 
@@ -149,7 +164,7 @@ function renderForm(options = {}) {
 
   if (shouldPreserveValues) savePreserved();
   formContainer.textContent = '';
-  senderSection.style.display = ['payment', 'followup'].includes(type) ? 'none' : 'block';
+  senderSection.style.display = ['payment', 'followup', 'demand'].includes(type) ? 'none' : 'block';
   clearValidation();
   const fragment = document.createDocumentFragment();
   fragment.appendChild(buildTemplateCue(type));
@@ -309,7 +324,7 @@ function validate() {
   const sender = $('senderName');
   const type = $('claimType').value;
 
-  if (!['payment', 'followup'].includes(type) && !sender.value.trim()) {
+  if (!['payment', 'followup', 'demand'].includes(type) && !sender.value.trim()) {
     markError(sender, 'err-senderName', 'Required');
     errors.push('Your Name');
     valid = false;
@@ -498,6 +513,22 @@ function composeEmail() {
   if (type === 'escalation') {
     const dueDate = getDeadlineDate();
     return { subject, body: `Urgent Communication Required Regarding Claim Escalation\n\n${greetingLine}\n\nI am writing to express my concerns regarding our recent attempts to contact you. Despite multiple efforts, we have not received any response.\n\nDue to the lack of communication, this claim is due for escalation. Prompt communication is crucial to resolving this matter. If no response is received by ${dueDate} this claim will be sent for further recovery efforts.\n\nPlease contact us to resolve this claim and avoid unnecessary escalation.` };
+  }
+
+  if (type === 'demand') {
+    const demandClientClaim = $('clientClaim')?.value.trim();
+    const demandTccClaim = $('tccClaim')?.value.trim();
+    let claimRef;
+    if (demandClientClaim && demandTccClaim) {
+      claimRef = `${demandClientClaim} / ${demandTccClaim}`;
+    } else {
+      claimRef = demandClientClaim || demandTccClaim || BLANK;
+    }
+    const demandType = $('demandRequestType')?.value || 'Demand Needed';
+    return {
+      subject: `${claimRef} - ${demandType}`,
+      body: `Good ${greetingWord},\n\nI am requesting the demand for the above referenced claim. Please advise if you have any questions.`
+    };
   }
 
   const cost = formatCost(getValue('cost', ''));
