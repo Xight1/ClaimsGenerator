@@ -30,14 +30,12 @@ window.CLAIMS_GENERATOR_CONFIG = { version: "v2026-06-16 - Stable" };
       'senderName',
       'claimType',
       'settlementMount',
-      'settlementClaimType',
       'outputSection',
       'copyFeedback',
       'appVersion',
       'selectedTemplateIndicator',
       'settlementCalculatorPanel',
       'claimWorkspace',
-      'toastNotification',
       'floatingThemeToggle'
     ]);
   });

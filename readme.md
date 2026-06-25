@@ -53,6 +53,51 @@ If you want, I can implement the RAF unification and the remaining hot-path chan
 
 ## Changelog
 
+### 2026-06-25 — Removed attachments feature; fixed post-removal crash in `navigation.js`; fixed stale DOM cache entries in `config.js`
+
+---
+
+#### `index.html` + `assets/js/app.js` + `assets/css/styles.css` — Attachments / Send to Outlook panel removed
+
+**What changed:** The `#attachmentPanel` div and all supporting code were removed.
+
+- `index.html`: the entire `#attachmentPanel` block (file inputs, New Email / Reply mode toggle, Send to Outlook button) was deleted.
+- `app.js`: removed the `newEmailFiles` and `replyFiles` arrays, and the functions `handleEmailModeChange()`, `handleNewEmailFilesChange()`, `renderNewEmailFileList()`, `handleReplyFilesChange()`, `renderReplyFileList()`, `sanitizeFilename()`, `readFileAsBase64()`, `chunkBase64()`, and `downloadEml()`.
+- `styles.css`: removed approximately 195 lines of attachment-related CSS (`.attachment-panel`, `.attach-file-*`, `.attach-mode-label`, `.attach-reply-note`, `.attach-delete-btn`, and their dark-mode variants).
+
+**Why:** The feature was removed to simplify the app. Dead UI, logic, and styles were cleaned up in the same pass.
+
+**Status:** Complete.
+
+---
+
+#### `assets/js/navigation.js` lines 161–164 — `ReferenceError` crash on every claim-type switch
+
+**What changed:** Four lines were removed from `handleClaimTypeChange()`:
+
+```js
+newEmailFiles.length = 0;
+replyFiles.length = 0;
+renderNewEmailFileList();
+renderReplyFileList();
+```
+
+**Why:** After the attachment feature was deleted from `app.js`, `handleClaimTypeChange()` still referenced `newEmailFiles`, `replyFiles`, `renderNewEmailFileList`, and `renderReplyFileList` — none of which existed anymore. Every claim-type switch threw a `ReferenceError` at runtime, breaking the core tab-switching flow.
+
+**Status:** Fixed.
+
+---
+
+#### `assets/js/config.js` — Stale IDs in `cacheDOM()` caused `showToast()` to silently no-op
+
+**What changed:** Two element IDs — `toastNotification` and `settlementClaimType` — were removed from the ID list passed to `cacheDOM()`.
+
+**Why:** Neither element exists in `index.html`. `toastNotification` was the most consequential: `showToast()` retrieved the element via `getCached('toastNotification')`, got `null`, and returned without displaying anything. Every toast call in the app was silently suppressed. `settlementClaimType` was a stale reference with no active call sites.
+
+**Status:** Fixed.
+
+---
+
 ### 2026-06-16 — Demand Request template added
 
 #### `index.html` — New button and select option

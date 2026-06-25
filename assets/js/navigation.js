@@ -158,10 +158,6 @@ function handleClaimTypeChange() {
   if (settlementPanel) settlementPanel.style.display = 'none';
   if (claimWorkspace) claimWorkspace.style.display = 'grid';
   if (typeof renderForm === 'function') renderForm();
-  newEmailFiles.length = 0;
-  replyFiles.length = 0;
-  renderNewEmailFileList();
-  renderReplyFileList();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
