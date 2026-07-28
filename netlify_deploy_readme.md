@@ -1,10 +1,10 @@
-# Claims Generator v2026-06-10 - Stable
+# Claims Generator v2026-07-28 - Beta
 
 A small static web app for generating claim email text and subjects.
 
 ## Overview
 
-This repository contains a lightweight single-page application that helps build and preview claim-related emails (subject and body) based on several templates (Gas Claim, Streetlight, Escalation, Payment, Follow Up, Insurance, Settlement).
+This repository contains a lightweight single-page application that helps build and preview claim-related emails (subject and body) based on several templates (Gas Claim, Streetlight, Escalation, Payment, Follow Up, Insurance, Settlement, Demand Request).
 
 ## Expected file structure
 

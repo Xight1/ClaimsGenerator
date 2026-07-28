@@ -486,6 +486,11 @@ function formatAttachmentList(attachments) {
   return `${attachments.slice(0, -1).join(', ')}, and ${attachments[attachments.length - 1]}`;
 }
 
+function ensureSentenceEnding(value) {
+  const text = String(value || '').trim();
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+}
+
 function composeEmail() {
   const type = $('claimType').value;
   const senderName = getValue('senderName');
@@ -536,13 +541,15 @@ function composeEmail() {
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-  let body = `${greetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\nWe are reaching out regarding an open claim that our client has against you. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
+  const damagedProperty = type === 'gas' ? 'gas infrastructure' : 'a streetlight';
+  const claimGreetingLine = recipient ? `Good ${greetingWord.toLowerCase()}, ${recipient},` : `Good ${greetingWord.toLowerCase()},`;
+  let body = `${claimGreetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\n\nWe are reaching out regarding an open claim involving damage to ${damagedProperty}. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
 
   if (type === 'gas') {
-    body += `Based on our client's investigation, it appears that ${getValue('incidentDetails')}\n\n`;
+    body += `Based on our client's investigation, the damage appears to have occurred when ${ensureSentenceEnding(getValue('incidentDetails'))}\n\n`;
     body += `The total cost of damages incurred is ${cost}.`;
   } else {
-    body += `Based on our review, the damage occurred during excavation work associated with ${getValue('incidentDescription')} The submitted locate ticket for this work was Locate Ticket #${getValue('locateTicket')} (attached for your reference). The submitted locate ticket was the most recent ticket filed in the area prior to the discovery of the damage by our client.\n\n`;
+    body += `Based on our review, the damage occurred during excavation work associated with ${ensureSentenceEnding(getValue('incidentDescription'))} Locate Ticket #${getValue('locateTicket')} is attached for your reference and appears to be the most recent ticket filed for the area before our client discovered the damage.\n\n`;
     body += `The total cost of repairs incurred by ${client} is ${cost}.`;
   }
 
@@ -554,7 +561,7 @@ function composeEmail() {
   if (hasTicket) attachments.push('the locate ticket');
   if (attachments.length) body += `\n\nI have attached ${formatAttachmentList(attachments)} for your review.`;
 
-  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, be sure to reference both the ${client} # ${clientClaim} and TCC File # ${tccClaim} on the check. Please provide images of the front and back of the check once mailed so we may verify payment has been issued and ensure quick application.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nIf proceeding with this method, please use master/reference #${tccClaim} to ensure quick resolution.\n\nWe have a limited window to resolve this claim. If no meaningful progress is made toward a resolution within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions.`;
+  body += `\n\nTo resolve this matter, please remit payment in the amount of ${cost}.\n\nIf paying by check, please reference both ${client} claim #${clientClaim} and TCC File #${tccClaim} on the check. Once the check has been mailed, please provide images of the front and back so we can verify that payment was issued and ensure it is applied promptly.\n\nPayment Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment:\nwww.theclaimscenter.com/payments\nWhen paying online, please use master/reference #${tccClaim} to ensure the payment is applied promptly.\n\nIf you dispute this claim, please reply with the basis of your dispute and include any supporting documentation you would like us and our client to review.\n\nWe have a limited window to resolve this matter. If we do not receive payment, dispute information, or another meaningful response within that time, the claim may be escalated for further recovery efforts.\n\nPlease contact me with any questions or to discuss the next steps toward resolving this claim.`;
   return { subject, body };
 }
 
@@ -702,4 +709,3 @@ document.addEventListener('DOMContentLoaded', () => {
   $('senderName').value = getSavedDefaults().senderName || DEFAULT_SENDER_NAME;
   renderForm();
 });
-
