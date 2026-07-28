@@ -541,7 +541,7 @@ function composeEmail() {
   const hasPhotos = $('hasPhotos')?.checked;
   const hasReport = $('hasReport')?.checked;
   const hasTicket = $('hasTicket')?.checked;
-  const damagedProperty = type === 'gas' ? 'gas infrastructure' : 'a streetlight';
+  const damagedProperty = type === 'gas' ? 'a gas facility' : 'a streetlight';
   const claimGreetingLine = recipient ? `Good ${greetingWord.toLowerCase()}, ${recipient},` : `Good ${greetingWord.toLowerCase()},`;
   let body = `${claimGreetingLine}\n\nMy name is ${senderName}, and I am contacting you on behalf of The Claims Center (TCC), a third-party administrator for ${client}.\n\nWe are reaching out regarding an open claim involving damage to ${damagedProperty}. The damage location is as follows:\n\nIncident Location:\n${damageStreet}\n${damageCity}\n\n`;
 

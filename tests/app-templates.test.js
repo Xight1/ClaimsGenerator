@@ -125,7 +125,7 @@ test('Gas email uses editable values and includes the dispute path', () => {
   const { body } = app.composeEmail();
 
   assert.match(body, /^Good (morning|afternoon|evening), Kimberly,/);
-  assert.match(body, /open claim involving damage to gas infrastructure/);
+  assert.match(body, /open claim involving damage to a gas facility/);
   assert.match(body, /damage appears to have occurred when the contractor struck the gas main/);
   assert.match(body, /I have attached the locate ticket for your review\./);
   assert.match(body, /If you dispute this claim, please reply with the basis of your dispute/);
