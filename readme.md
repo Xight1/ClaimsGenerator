@@ -1,5 +1,9 @@
 # Claims Generator v2026-09-17 - Beta
 
+## 2026-09-17 — Shortened tab labels
+
+Renamed Gas Claim to Gas, Payment Information to Payment Info., Insurance Adjuster to Insurance Adj., and Demand Request to Demand Req. Selected-template labels match. Tab order and generated email wording are unchanged.
+
 ## 2026-09-17 — Navigation order
 
 Tabs now appear in this order: Gas Claim, Streetlight, Follow Up, Escalation, Settlement, Payment Information, Insurance Adjuster, Demand Request. The underlying template selector uses the same order; template behavior and labels are unchanged.

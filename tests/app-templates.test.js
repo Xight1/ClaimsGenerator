@@ -217,6 +217,20 @@ test('Navigation tabs and claim selector use the requested order', () => {
   assert.deepEqual(Array.from(selector.matchAll(/<option value="([^"]+)"/g), match => match[1]), expectedOrder);
 });
 
+test('Shortened tab labels match their selected-template labels', () => {
+  const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+  const navigation = html.match(/<nav class="topbar-nav"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  const tabs = Object.fromEntries(Array.from(navigation.matchAll(/setClaimTypeFromShortcut\('([^']+)'\)"[^>]*>([^<]+)<\/button>/g), match => [match[1], match[2]]));
+  const options = Object.fromEntries(Array.from(html.matchAll(/<option value="([^"]+)">([^<]+)<\/option>/g), match => [match[1], match[2]]));
+  for (const [type, label] of Object.entries({ gas: 'Gas', payment: 'Payment Info.', insurance: 'Insurance Adj.', demand: 'Demand Req.' })) {
+    assert.equal(tabs[type], label);
+    assert.equal(options[type], label);
+  }
+  assert.match(html, /<strong>Gas<\/strong>/);
+  const { app } = createApp(commonValues('payment'));
+  assert.match(app.composeEmail().subject, /^Payment Information \|/);
+});
+
 test('Current version matches the Beta release date', () => {
   const expectedVersion = 'v2026-09-17 - Beta';
   const config = fs.readFileSync(path.join(projectRoot, 'assets/js/config.js'), 'utf8');

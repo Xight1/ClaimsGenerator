@@ -17,7 +17,7 @@ function syncClaimTypeSelects(value) {
 function getTemplateLabel(value) {
   const claimType = (typeof getCached === 'function' ? getCached('claimType') : document.getElementById('claimType'));
   const option = claimType?.querySelector(`option[value="${value}"]`);
-  return option?.textContent || 'Gas Claim';
+  return option?.textContent || 'Gas';
 }
 
 function updateSelectedTemplateIndicator(value) {
