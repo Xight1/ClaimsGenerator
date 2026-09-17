@@ -152,8 +152,43 @@ test('Streetlight email preserves punctuation and uses editable values', () => {
   assert.equal(JSON.stringify(elements), valuesBeforeCompose);
 });
 
-test('Current version is marked Beta with today’s date', () => {
-  const expectedVersion = 'v2026-07-28 - Beta';
+test('Insurance pending checkbox is optional and specific to Insurance Adjuster', () => {
+  const { app } = createApp(commonValues('insurance'));
+  const field = app.fields.insurance.find(field => field.id === 'insuranceDemandPending');
+  assert.equal(field.type, 'checkbox');
+  assert.equal(field.label, 'Demand letter pending');
+  assert.equal(Boolean(field.required), false);
+  for (const [type, definitions] of Object.entries(app.fields)) {
+    if (type !== 'insurance') assert.equal(collectFieldIds(definitions).includes(field.id), false);
+  }
+});
+
+test('Insurance pending text toggles without changing subject or other body text', () => {
+  const { app, elements } = createApp({
+    ...commonValues('insurance'),
+    insuranceClaim: { value: 'ins-123' },
+    insuranceDemandPending: { checked: false }
+  });
+  const original = app.composeEmail();
+  const pendingText = '\n\nI am currently pending the demand letter, but can provide it once it becomes available.';
+  assert.doesNotMatch(original.body, /pending the demand letter/);
+  assert.match(original.body, /claim in the amount of \$1,554\.91\./);
+  assert.match(original.subject, /Your Claim # INS-123/);
+  elements.insuranceDemandPending.checked = true;
+  const valuesBeforeCompose = JSON.stringify(elements);
+  const pending = app.composeEmail();
+  assert.equal(pending.subject, original.subject);
+  assert.equal(pending.body.split(pendingText).length, 2);
+  assert.equal(pending.body.replace(pendingText, ''), original.body);
+  assert.equal(JSON.stringify(elements), valuesBeforeCompose);
+  elements.insuranceDemandPending.checked = false;
+  assert.deepEqual(app.composeEmail(), original);
+  delete elements.insuranceDemandPending;
+  assert.deepEqual(app.composeEmail(), original);
+});
+
+test('Current version matches the Beta release date', () => {
+  const expectedVersion = 'v2026-09-17 - Beta';
   const config = fs.readFileSync(path.join(projectRoot, 'assets/js/config.js'), 'utf8');
   const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 

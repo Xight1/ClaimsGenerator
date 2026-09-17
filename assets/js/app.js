@@ -113,7 +113,8 @@ const fields = {
     { type: 'row', fields: [
       { label: 'Insurance Claim Number', id: 'insuranceClaim', placeholder: 'e.g. INS-24680', required: true },
       { label: 'Claim Amount ($)', id: 'cost', placeholder: 'e.g. 1500.00', required: true }
-    ] }
+    ] },
+    { label: 'Demand letter pending', id: 'insuranceDemandPending', type: 'checkbox' }
   ],
   demand: [
     { type: 'section-title', label: 'Claim Reference' },
@@ -517,7 +518,10 @@ function composeEmail() {
 
   if (type === 'insurance') {
     const cost = formatCost(getValue('cost', ''));
-    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.` };
+    const demandLetterText = $('insuranceDemandPending')?.checked
+      ? '\n\nI am currently pending the demand letter, but can provide it once it becomes available.'
+      : '';
+    return { subject, body: `${greetingLine}\n\nI am reaching out to provide the supporting documents for the above referenced claim in the amount of ${cost}.${demandLetterText}\n\nPlease advise if you have any further questions or need any additional documentation for your review.\n\nRemittance Instructions:\nPayee: ${client}\nMemo: ${client} #${clientClaim} | TCC #${tccClaim}\nMail To:\n${client}\nc/o The Claims Center LLC\nP.O. Box 270410\nMinneapolis, MN 55427\n\nOnline Payment: www.theclaimscenter.com/payments\nPlease use TCC #${tccClaim} as the master/reference number for online payment.` };
   }
 
   if (type === 'escalation') {

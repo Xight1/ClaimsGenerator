@@ -1,4 +1,14 @@
-# Claims Generator v2026-07-28 - Beta
+# Claims Generator v2026-09-17 - Beta
+
+## 2026-09-17 — Insurance demand letter option (local Beta)
+
+Insurance Adjuster includes an optional, initially unchecked "Demand letter pending" checkbox. Checking it adds: "I am currently pending the demand letter, but can provide it once it becomes available." Unchecking it restores the existing wording. The subject, claim amount, and payment instructions are unchanged. Like other template-specific checkboxes, it clears on reset or form rebuild.
+
+## 2026-09-17 — Settlement validation (local Beta)
+
+Settlement totals must be greater than zero with at most two decimal places. Reductions must be explicitly entered from 0 through 100%; enter 0 for no reduction. Dollar signs and correctly grouped thousands separators are accepted for totals, and an optional percent sign is accepted for reductions. Invalid or incomplete input clears the prior offer and disables copying; reset also disables copying.
+
+Run regression tests with `node --test`. This static project has no build, lint, or type-check configuration. These changes do not deploy the site.
 
 A small static web app for generating claim email text and subjects.
 

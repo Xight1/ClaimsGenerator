@@ -88,7 +88,7 @@ function ensureSettlementPanel() {
         <div class="preview-label">Settlement Statement</div>
         <div id="settlementStatement">Enter a total cost and percentage reduction to generate settlement language.</div>
         <div class="btn-row preview-actions settlement-actions">
-          <button type="button" class="btn-primary" id="copySettlementBtn">Copy Settlement Statement</button>
+          <button type="button" class="btn-primary" id="copySettlementBtn" disabled>Copy Settlement Statement</button>
           <span class="copy-feedback" id="settlementCopyFeedback">Copied!</span>
         </div>
       </div>

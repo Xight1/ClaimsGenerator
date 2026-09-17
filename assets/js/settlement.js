@@ -12,6 +12,16 @@ function formatExpirationDate(date) {
   });
 }
 
+function parseSettlementInput(raw, isCurrency = false) {
+  const text = String(raw ?? '').trim();
+  const pattern = isCurrency
+    ? /^\$?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$/
+    : /^\d+(?:\.\d+)?%?$/;
+  if (!pattern.test(text)) return NaN;
+  const value = Number(text.replace(/[$,%]/g, ''));
+  return Number.isFinite(value) ? value : NaN;
+}
+
 function calculateSettlement() {
   const totalCostInput = document.getElementById("settlementTotalCost");
   const reductionInput = document.getElementById("settlementReductionPercent");
@@ -21,33 +31,35 @@ function calculateSettlement() {
   const warningOutput = document.getElementById("settlementWarning");
   const statementOutput = document.getElementById("settlementStatement");
 
-  const totalCost = Number.parseFloat((totalCostInput.value || "0").replace(/[^0-9.]/g, ''));
-  const reductionPercent = Number.parseFloat((reductionInput.value || "0").replace(/[^0-9.]/g, ''));
-  const validTotal = Number.isFinite(totalCost) && totalCost >= 0 ? totalCost : -1;
-  const validReduction = Number.isFinite(reductionPercent) && reductionPercent >= 0 ? reductionPercent : -1;
-
-  if (validTotal < 0) {
-    if (reductionAmountOutput) reductionAmountOutput.textContent = "Invalid input";
-    if (offerAmountOutput) offerAmountOutput.textContent = "Invalid input";
-    return;
-  }
-  if (validReduction < 0) {
-    if (reductionAmountOutput) reductionAmountOutput.textContent = "Invalid input";
-    if (offerAmountOutput) offerAmountOutput.textContent = "Invalid input";
-    return;
-  }
-
-  const clampedReduction = Math.min(validReduction, 100);
-  const reductionAmount = validTotal * (clampedReduction / 100);
-  const settlementOffer = Math.max(validTotal - reductionAmount, 0);
-
+  const totalCost = parseSettlementInput(totalCostInput?.value, true);
+  const reductionPercent = parseSettlementInput(reductionInput?.value);
+  const copyButton = document.getElementById('copySettlementBtn');
   const originalAmountOutput = document.getElementById('settlementOriginalAmount');
-  if (originalAmountOutput) originalAmountOutput.textContent = validTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const feedback = document.getElementById('settlementCopyFeedback');
+  if (feedback) feedback.classList.remove('show');
+
+  if (!Number.isFinite(totalCost) || totalCost <= 0 || !Number.isFinite(reductionPercent) || reductionPercent < 0 || reductionPercent > 100) {
+    if (originalAmountOutput) originalAmountOutput.textContent = "—";
+    if (reductionAmountOutput) reductionAmountOutput.textContent = "Invalid input";
+    if (offerAmountOutput) offerAmountOutput.textContent = "Invalid input";
+    if (warningOutput) {
+      warningOutput.textContent = "Enter a total greater than $0 (up to two decimal places) and a reduction from 0 to 100%.";
+      warningOutput.style.display = "block";
+    }
+    if (statementOutput) statementOutput.textContent = "Enter valid amounts to generate settlement language.";
+    if (copyButton) copyButton.disabled = true;
+    return false;
+  }
+
+  const reductionAmount = totalCost * (reductionPercent / 100);
+  const settlementOffer = Math.max(totalCost - reductionAmount, 0);
+
+  if (originalAmountOutput) originalAmountOutput.textContent = formatSettlementCurrency(totalCost);
   if (reductionAmountOutput) reductionAmountOutput.textContent = formatSettlementCurrency(reductionAmount);
   if (offerAmountOutput) offerAmountOutput.textContent = formatSettlementCurrency(settlementOffer);
 
   if (warningOutput) {
-    if (clampedReduction > 10) {
+    if (reductionPercent > 10) {
       warningOutput.textContent = "Warning: This settlement reduction exceeds 10% SIF authority. Additional approval may be required before extending this offer.";
       warningOutput.style.display = "block";
     } else {
@@ -65,6 +77,8 @@ function calculateSettlement() {
   }
 
   if (statementOutput) statementOutput.textContent = statement;
+  if (copyButton) copyButton.disabled = false;
+  return true;
 }
 
 function resetSettlementCalculator() {
@@ -88,9 +102,13 @@ function resetSettlementCalculator() {
     warningOutput.style.display = "none";
   }
   if (statementOutput) statementOutput.textContent = "Enter a total cost and percentage reduction to generate settlement language.";
+  const copyButton = document.getElementById('copySettlementBtn');
+  if (copyButton) copyButton.disabled = true;
+  document.getElementById('settlementCopyFeedback')?.classList.remove('show');
 }
 
 function copySettlementStatement() {
+  if (!calculateSettlement()) return;
   const statement = document.getElementById("settlementStatement").textContent;
   navigator.clipboard.writeText(statement).then(() => {
     const feedback = document.getElementById("settlementCopyFeedback");
@@ -99,4 +117,3 @@ function copySettlementStatement() {
     setTimeout(() => feedback.classList.remove("show"), 1400);
   }).catch((err) => console.error('Failed to copy:', err));
 }
-
