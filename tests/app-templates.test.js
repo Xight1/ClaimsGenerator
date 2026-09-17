@@ -187,6 +187,36 @@ test('Insurance pending text toggles without changing subject or other body text
   assert.deepEqual(app.composeEmail(), original);
 });
 
+for (const type of ['gas', 'streetlight', 'escalation', 'payment', 'insurance']) {
+  test(`${type} offers Northwestern Energy and uses it in generated output`, () => {
+    const { app } = createApp({
+      ...commonValues(type),
+      client: { value: 'Northwestern Energy' }
+    });
+    const client = app.fields[type].find(field => field.id === 'client');
+    assert.deepEqual(Array.from(client.options, option => option.value), [
+      'CenterPoint Energy', 'Delta Utilities', 'One Gas', 'Northwestern Energy', 'custom'
+    ]);
+    assert.equal(client.options.find(option => option.value === 'Northwestern Energy').text, 'Northwestern Energy');
+    const { subject, body } = app.composeEmail();
+    assert.match(subject, /Northwestern Energy # SR2026275140-RR/);
+    assert.doesNotMatch(subject + body, /CenterPoint Energy/);
+    if (type !== 'escalation') {
+      assert.match(body, /Payee: Northwestern Energy/);
+      assert.match(body, /Mail To:\nNorthwestern Energy\nc\/o The Claims Center LLC/);
+    }
+  });
+}
+
+test('Navigation tabs and claim selector use the requested order', () => {
+  const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+  const navigation = html.match(/<nav class="topbar-nav"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  const selector = html.match(/<select id="claimType"[^>]*>([\s\S]*?)<\/select>/)[1];
+  const expectedOrder = ['gas', 'streetlight', 'followup', 'escalation', 'settlement', 'payment', 'insurance', 'demand'];
+  assert.deepEqual(Array.from(navigation.matchAll(/setClaimTypeFromShortcut\('([^']+)'\)/g), match => match[1]), expectedOrder);
+  assert.deepEqual(Array.from(selector.matchAll(/<option value="([^"]+)"/g), match => match[1]), expectedOrder);
+});
+
 test('Current version matches the Beta release date', () => {
   const expectedVersion = 'v2026-09-17 - Beta';
   const config = fs.readFileSync(path.join(projectRoot, 'assets/js/config.js'), 'utf8');

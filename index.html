@@ -19,12 +19,12 @@
       <nav class="topbar-nav" aria-label="Primary navigation">
         <button type="button" class="active" onclick="setClaimTypeFromShortcut('gas')">Gas Claim</button>
         <button type="button" onclick="setClaimTypeFromShortcut('streetlight')">Streetlight</button>
-        <button type="button" onclick="setClaimTypeFromShortcut('escalation')">Escalation</button>
-        <button type="button" onclick="setClaimTypeFromShortcut('payment')">Payment Information</button>
         <button type="button" onclick="setClaimTypeFromShortcut('followup')">Follow Up</button>
-        <button type="button" onclick="setClaimTypeFromShortcut('demand')">Demand Request</button>
-        <button type="button" onclick="setClaimTypeFromShortcut('insurance')">Insurance Adjuster</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('escalation')">Escalation</button>
         <button type="button" onclick="setClaimTypeFromShortcut('settlement')">Settlement</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('payment')">Payment Information</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('insurance')">Insurance Adjuster</button>
+        <button type="button" onclick="setClaimTypeFromShortcut('demand')">Demand Request</button>
       </nav>
     </header>
   </div>
@@ -47,12 +47,12 @@
           <select id="claimType" class="hidden-control" onchange="handleClaimTypeChange()" aria-hidden="true" tabindex="-1">
             <option value="gas">Gas Claim</option>
             <option value="streetlight">Streetlight Claim</option>
-            <option value="escalation">Escalation of Claim</option>
-            <option value="payment">Payment Information</option>
             <option value="followup">Follow Up</option>
-            <option value="demand">Demand Request</option>
-            <option value="insurance">Insurance Adjuster</option>
+            <option value="escalation">Escalation of Claim</option>
             <option value="settlement">Settlement Calculator</option>
+            <option value="payment">Payment Information</option>
+            <option value="insurance">Insurance Adjuster</option>
+            <option value="demand">Demand Request</option>
           </select>
 
           <div class="section" id="senderSection">

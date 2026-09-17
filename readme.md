@@ -1,5 +1,13 @@
 # Claims Generator v2026-09-17 - Beta
 
+## 2026-09-17 — Navigation order
+
+Tabs now appear in this order: Gas Claim, Streetlight, Follow Up, Escalation, Settlement, Payment Information, Insurance Adjuster, Demand Request. The underlying template selector uses the same order; template behavior and labels are unchanged.
+
+## 2026-09-17 — Additional client
+
+Added Northwestern Energy to the shared client list for Gas Claim, Streetlight, Escalation, Payment Information, and Insurance Adjuster. Existing client options and payment instructions remain unchanged.
+
 ## 2026-09-17 — Insurance demand letter option (local Beta)
 
 Insurance Adjuster includes an optional, initially unchecked "Demand letter pending" checkbox. Checking it adds: "I am currently pending the demand letter, but can provide it once it becomes available." Unchecking it restores the existing wording. The subject, claim amount, and payment instructions are unchanged. Like other template-specific checkboxes, it clears on reset or form rebuild.

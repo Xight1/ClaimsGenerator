@@ -26,6 +26,7 @@ const clientField = {
     { value: 'CenterPoint Energy', text: 'CenterPoint Energy' },
     { value: 'Delta Utilities', text: 'Delta Utilities' },
     { value: 'One Gas', text: 'One Gas' },
+    { value: 'Northwestern Energy', text: 'Northwestern Energy' },
     { value: 'custom', text: 'Custom Client' }
   ],
   customInput: {
